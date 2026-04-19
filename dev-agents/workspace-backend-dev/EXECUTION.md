@@ -17,6 +17,14 @@
 - 阶段报告目录：`D:\Github\openclaw\dev-agents\reports`
 - 交接记录目录：`D:\Github\openclaw\dev-agents\handoff`
 
+## 产物命名要求
+
+1. 所有正式产物文件名必须包含唯一 `task_id`。
+2. 后端实现报告推荐命名为：`<task_id>-backend-developer-report.md`。
+3. 若补充后端设计或接口文档，应使用：`<task_id>-api.md`、`<task_id>-design.md` 等格式。
+4. 交接单必须使用：`<task_id>-<from>-to-<to>.md`。
+5. 禁止使用不带 `task_id` 的文件名，避免后续任务覆盖已有产物。
+
 ## 完成判定
 
 1. 后端实现与已批准范围一致。

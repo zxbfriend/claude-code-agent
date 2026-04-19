@@ -6,10 +6,27 @@
 
 `D:\Github\openclaw\dev-agents\docs`
 
+## 命名规则
+
+为避免不同任务之间相互覆盖，`docs` 目录中的正式文档文件名必须包含唯一 `task_id`。
+
+推荐格式：
+
+1. `T-YYYYMMDD-001-requirements.md`
+2. `T-YYYYMMDD-001-api.md`
+3. `T-YYYYMMDD-001-design.md`
+4. `T-YYYYMMDD-001-architecture.md`
+
+补充要求：
+
+1. 不允许只用业务名命名，例如 `requirements-login.md`。
+2. 不允许省略 `task_id`。
+3. 同一任务的不同文档，通过后缀区分类型，不通过覆盖旧文件更新阶段。
+
 示例：
 
-1. `D:\Github\openclaw\dev-agents\docs\requirements-LOGIN-20260419-001.md`
-2. `D:\Github\openclaw\dev-agents\docs\api-LOGIN-20260419-001.md`
+1. `D:\Github\openclaw\dev-agents\docs\T-20260419-001-requirements.md`
+2. `D:\Github\openclaw\dev-agents\docs\T-20260419-001-api.md`
 
 约定：
 

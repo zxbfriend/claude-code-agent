@@ -135,11 +135,11 @@
 ## 8. 文件与命名建议
 
 1. 交接记录目录：`D:\Github\openclaw\dev-agents\handoff`
-2. 命名格式：`<task_id>-<from>-to-<to>.md`
-3. 报告目录建议：
-   - `D:\Github\openclaw\dev-agents\docs`：需求与设计
-   - `D:\Github\openclaw\dev-agents\reports`：开发、审查与测试报告
-   - 证据优先记录在交接单 `evidence` 字段中，必要时引用 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports` 或外部日志位置
+2. 交接单命名格式：`<task_id>-<from>-to-<to>.md`
+3. 需求与设计文档命名格式：`<task_id>-requirements.md`、`<task_id>-api.md`、`<task_id>-design.md`
+4. 报告命名格式：`<task_id>-requirements-analyst-report.md`、`<task_id>-frontend-developer-report.md`、`<task_id>-backend-developer-report.md`、`<task_id>-code-reviewer-report.md`、`<task_id>-qa-engineer-report.md`、`<task_id>-final-report.md`
+5. 所有正式产物文件名都必须包含唯一 `task_id`，避免第二个任务覆盖第一个任务的文档。
+6. 证据优先记录在交接单 `evidence` 字段中，必要时引用 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports` 或外部日志位置
 
 ## 9. 执行纪律
 

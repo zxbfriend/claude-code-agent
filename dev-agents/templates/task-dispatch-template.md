@@ -18,8 +18,9 @@ inputs:
 - reports: ...
 
 outputs:
-- ...
-- ...
+- D:\Github\openclaw\dev-agents\docs\<task_id>-requirements.md
+- D:\Github\openclaw\dev-agents\reports\<task_id>-frontend-developer-report.md
+- D:\Github\openclaw\dev-agents\handoff\<task_id>-<from>-to-<to>.md
 
 acceptance_criteria:
 - ...
@@ -29,6 +30,13 @@ timeout_seconds: 600
 handoff_to: ...
 notes: ...
 ```
+
+## 输出文件命名要求
+
+1. 所有正式产物文件名必须包含当前任务的唯一 `task_id`。
+2. 所有正式产物必须写入仓库根目录下的 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff`。
+3. 禁止使用不带 `task_id` 的文件名，例如 `requirements-login.md`、`frontend-report.md`、`handoff-analyst.md`。
+4. 若任务拆分为多个阶段文件，也必须保持同一个 `task_id` 前缀，并通过后缀区分类型。
 
 ## 下发给 RequirementsAnalyst
 
@@ -83,3 +91,4 @@ notes: ...
 4. 是否写清输出要求
 5. 是否写清验收标准
 6. 是否说明完成后交接对象
+7. 是否要求所有正式产物文件名包含 `task_id`

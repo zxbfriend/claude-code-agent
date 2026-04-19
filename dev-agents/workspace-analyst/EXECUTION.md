@@ -18,6 +18,14 @@
 - 交接模板：`D:\Github\openclaw\dev-agents\templates\handoff-template.md`
 - 交接记录目录：`D:\Github\openclaw\dev-agents\handoff`
 
+## 产物命名要求
+
+1. 所有正式产物文件名必须包含唯一 `task_id`。
+2. 需求与接口文档推荐命名为：`<task_id>-requirements.md`、`<task_id>-api.md`、`<task_id>-design.md`。
+3. 分析报告推荐命名为：`<task_id>-requirements-analyst-report.md`。
+4. 交接单必须使用：`<task_id>-<from>-to-<to>.md`。
+5. 禁止使用不带 `task_id` 的文件名，避免后续任务覆盖已有产物。
+
 ## 完成判定
 
 1. 范围与非目标已经写清楚。

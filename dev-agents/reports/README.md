@@ -11,11 +11,21 @@
 5. `D:\Github\openclaw\dev-agents\templates\qa-engineer-template.md`
 6. `D:\Github\openclaw\dev-agents\templates\final-report-template.md`
 
-## 命名建议
+## 命名规则
 
-1. `T-xxxx-requirements-analyst-report.md`
-2. `T-xxxx-frontend-developer-report.md`
-3. `T-xxxx-backend-developer-report.md`
-4. `T-xxxx-code-reviewer-report.md`
-5. `T-xxxx-qa-engineer-report.md`
-6. `T-xxxx-final-report.md`
+为避免不同任务之间相互覆盖，所有报告文件名必须包含唯一 `task_id`。
+
+推荐格式：
+
+1. `T-YYYYMMDD-001-requirements-analyst-report.md`
+2. `T-YYYYMMDD-001-frontend-developer-report.md`
+3. `T-YYYYMMDD-001-backend-developer-report.md`
+4. `T-YYYYMMDD-001-code-reviewer-report.md`
+5. `T-YYYYMMDD-001-qa-engineer-report.md`
+6. `T-YYYYMMDD-001-final-report.md`
+
+补充要求：
+
+1. 不允许使用 `frontend-report.md` 这类无任务标识名称。
+2. 不允许不同任务复用同一报告文件名。
+3. 同一任务的报告更新应覆盖同一任务文件，不应覆盖其他任务文件。

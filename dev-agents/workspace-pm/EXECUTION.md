@@ -24,6 +24,13 @@
 - 最终汇总模板：`D:\Github\openclaw\dev-agents\templates\final-report-template.md`
 - 交接模板：`D:\Github\openclaw\dev-agents\templates\handoff-template.md`
 
+## 产物命名要求
+
+1. 在下发任务时必须先生成唯一 `task_id`。
+2. 所有正式产物文件名都必须包含该 `task_id`。
+3. 需求文档、报告、交接单的命名必须符合 `D:\Github\openclaw\dev-agents\HANDOFF.md` 与各目录 `README.md` 中的规则。
+4. 禁止下游角色使用不带 `task_id` 的文件名，避免第二个任务覆盖第一个任务的产物。
+
 ## 完成判定
 
 1. 当前任务类型要求的阶段都已执行。
