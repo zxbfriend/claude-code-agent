@@ -1,15 +1,15 @@
 ﻿# reports/README.md
 
-本目录用于存放研发流程中的阶段输出报告实例，和根目录 `HANDOFF.md`、`handoff/` 目录配套使用。
+本目录用于存放研发流程中的阶段输出报告实例，和根目录 `D:\Github\openclaw\dev-agents\HANDOFF.md`、`D:\Github\openclaw\dev-agents\handoff` 目录配套使用。
 
 ## 报告模板入口
 
-1. `../templates/requirements-analyst-template.md`
-2. `../templates/frontend-developer-template.md`
-3. `../templates/backend-developer-template.md`
-4. `../templates/code-reviewer-template.md`
-5. `../templates/qa-engineer-template.md`
-6. `../templates/final-report-template.md`
+1. `D:\Github\openclaw\dev-agents\templates\requirements-analyst-template.md`
+2. `D:\Github\openclaw\dev-agents\templates\frontend-developer-template.md`
+3. `D:\Github\openclaw\dev-agents\templates\backend-developer-template.md`
+4. `D:\Github\openclaw\dev-agents\templates\code-reviewer-template.md`
+5. `D:\Github\openclaw\dev-agents\templates\qa-engineer-template.md`
+6. `D:\Github\openclaw\dev-agents\templates\final-report-template.md`
 
 ## 命名建议
 

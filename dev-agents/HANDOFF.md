@@ -17,7 +17,7 @@
 两者分工如下：
 
 1. OpenClaw 原生层：由 `ProjectManager` 通过 `Sub-Agents` 机制调用各角色，并接收阶段结果回传
-2. 仓库治理层：通过 `handoff/`、`reports/`、`docs/` 保留研发过程证据，便于审计、复盘和人工接力
+2. 仓库治理层：通过 `D:\Github\openclaw\dev-agents\handoff`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\docs` 保留研发过程证据，便于审计、复盘和人工接力
 
 结论：
 
@@ -134,12 +134,12 @@
 
 ## 8. 文件与命名建议
 
-1. 交接记录目录：`handoff/`
+1. 交接记录目录：`D:\Github\openclaw\dev-agents\handoff`
 2. 命名格式：`<task_id>-<from>-to-<to>.md`
 3. 报告目录建议：
-   - `docs/`：需求与设计
-   - `reports/`：开发、审查与测试报告
-   - 证据优先记录在交接单 `evidence` 字段中，必要时引用 `docs/`、`reports/` 或外部日志位置
+   - `D:\Github\openclaw\dev-agents\docs`：需求与设计
+   - `D:\Github\openclaw\dev-agents\reports`：开发、审查与测试报告
+   - 证据优先记录在交接单 `evidence` 字段中，必要时引用 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports` 或外部日志位置
 
 ## 9. 执行纪律
 

@@ -10,7 +10,7 @@
 
 1. 只有 `ProjectManager` 是外部用户入口 Agent
 2. 其他 Agent 不直接绑定外部渠道，只能由 `ProjectManager` 通过 OpenClaw 子 Agent 机制调用
-3. 正式研发链路以主 Agent 编排为准，`handoff/`、`reports/`、`docs/` 用于留痕、审计和复盘
+3. 正式研发链路以主 Agent 编排为准，`D:\Github\openclaw\dev-agents\handoff`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\docs` 用于留痕、审计和复盘
 
 ## 团队角色
 
@@ -23,7 +23,7 @@
 | 代码审查员 | CodeReviewer | `workspace-reviewer` | `code_reviewer` | 代码质量审查、风险识别、问题分级 |
 | 测试工程师 | QAEngineer | `workspace-qa` | `qa_engineer` | 测试设计、执行验证、缺陷反馈、发布建议 |
 
-说明：本文档中的目录路径默认相对 `dev-agents/` 根目录解析；角色 ID 统一使用 PascalCase，Agent ID 统一使用 snake_case。
+说明：本文档中的目录路径统一使用绝对路径；角色 ID 统一使用 PascalCase，Agent ID 统一使用 snake_case。
 
 ## 与文章示例的映射关系
 
@@ -58,21 +58,21 @@ OpenClaw 文章示例采用 5 角色链路：`Director -> Requirement Analyst ->
 
 OpenClaw 原生回调负责“任务执行”，仓库文档负责“过程留痕”：
 
-1. `docs/`：需求与设计文档
-2. `reports/`：阶段性结果报告
-3. `handoff/`：角色交接记录
+1. `D:\Github\openclaw\dev-agents\docs`：需求与设计文档
+2. `D:\Github\openclaw\dev-agents\reports`：阶段性结果报告
+3. `D:\Github\openclaw\dev-agents\handoff`：角色交接记录
 
 因此，文档交接单是治理补充，不替代 OpenClaw 原生任务回传。
 
 ## 协作协议
 
-1. 角色交接统一遵循 `HANDOFF.md`
-2. 交接记录统一写入 `handoff/`
-3. 阶段报告统一写入 `reports/`
-4. 需求与接口文档统一写入 `docs/`
-5. 共享入口与模板映射统一放在 `shared/`
-6. 各角色输入输出模板映射统一查看 `shared/agent-template-map.md`
-7. OpenClaw 配置与运行说明统一查看 `docs/`
+1. 角色交接统一遵循 `D:\Github\openclaw\dev-agents\HANDOFF.md`
+2. 交接记录统一写入 `D:\Github\openclaw\dev-agents\handoff`
+3. 阶段报告统一写入 `D:\Github\openclaw\dev-agents\reports`
+4. 需求与接口文档统一写入 `D:\Github\openclaw\dev-agents\docs`
+5. 共享入口与模板映射统一放在 `D:\Github\openclaw\dev-agents\shared`
+6. 各角色输入输出模板映射统一查看 `D:\Github\openclaw\dev-agents\shared\agent-template-map.md`
+7. OpenClaw 配置与运行说明统一查看 `D:\Github\openclaw\dev-agents\docs`
 
 ## 任务模板
 
@@ -114,10 +114,10 @@ dev-agents/
 
 ## 运行相关文档
 
-1. `docs/openclaw-config-example.md`：OpenClaw 主配置示例
-2. `docs/openclaw-binding-example.md`：入口绑定示例
-3. `docs/openclaw-runtime-layout.md`：运行目录说明
-4. `docs/openclaw-architecture-mapping.md`：角色架构映射说明
+1. `D:\Github\openclaw\dev-agents\docs\openclaw-config-example.md`：OpenClaw 主配置示例
+2. `D:\Github\openclaw\dev-agents\docs\openclaw-binding-example.md`：入口绑定示例
+3. `D:\Github\openclaw\dev-agents\docs\openclaw-runtime-layout.md`：运行目录说明
+4. `D:\Github\openclaw\dev-agents\docs\openclaw-architecture-mapping.md`：角色架构映射说明
 
 ## 使用说明
 
@@ -126,4 +126,4 @@ dev-agents/
 3. `RequirementsAnalyst` 完成规格后，`ProjectManager` 并行调用 `FrontendDeveloper` 与 `BackendDeveloper`
 4. 开发完成后，`ProjectManager` 调用 `CodeReviewer`
 5. 审查通过后，`ProjectManager` 调用 `QAEngineer`
-6. 最终由 `ProjectManager` 汇总 `docs/`、`reports/`、`handoff/` 与子 Agent 回调结果，对外输出结论
+6. 最终由 `ProjectManager` 汇总 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 与子 Agent 回调结果，对外输出结论

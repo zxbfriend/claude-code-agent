@@ -9,8 +9,8 @@
   - key change 1
   - key change 2
 - evidence:
-  - docs/T-xxxx-prd.md
-  - reports/T-xxxx-frontend-developer-report.md
+  - D:\Github\openclaw\dev-agents\docs\T-xxxx-prd.md
+  - D:\Github\openclaw\dev-agents\reports\T-xxxx-frontend-developer-report.md
 - risks:
   - risk 1
   - risk 2

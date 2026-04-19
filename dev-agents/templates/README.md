@@ -25,6 +25,6 @@
 
 ## 使用原则
 
-1. 所有角色优先从 `templates/` 读取模板
-2. `docs/`、`reports/`、`handoff/` 主要用于存放实例产物
-3. 具体角色模板使用关系见 `../shared/agent-template-map.md`
+1. 所有角色优先从 `D:\Github\openclaw\dev-agents\templates` 读取模板
+2. `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 主要用于存放实例产物
+3. 具体角色模板使用关系见 `D:\Github\openclaw\dev-agents\shared\agent-template-map.md`

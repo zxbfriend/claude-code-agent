@@ -1,10 +1,10 @@
 ﻿# handoff/README.md
 
-本目录用于存放跨角色任务交接记录实例，配合根目录 `HANDOFF.md` 使用。
+本目录用于存放跨角色任务交接记录实例，配合根目录 `D:\Github\openclaw\dev-agents\HANDOFF.md` 使用。
 
 ## 模板入口
 
-1. `../templates/handoff-template.md`
+1. `D:\Github\openclaw\dev-agents\templates\handoff-template.md`
 
 ## 1. 命名规则
 
