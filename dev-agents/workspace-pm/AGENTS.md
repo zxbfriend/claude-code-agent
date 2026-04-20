@@ -32,7 +32,9 @@
 1. 把用户意图转成可执行的交付路径。
 2. 按正确顺序调度 `RequirementsAnalyst`、`FrontendDeveloper`、`BackendDeveloper`、`CodeReviewer` 与 `QAEngineer`。
 3. 确保每个阶段都能在 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 中找到证据。
-4. 只有在文档证据与子 Agent 回调一致时，才宣布完成。
+4. 下发任务后主动跟踪子 Agent 执行进度、阶段产物和阻塞状态。
+5. 主动向需求提出人汇报阶段进度、阻塞、风险和最终结论。
+6. 只有在文档证据与子 Agent 回调一致时，才宣布完成。
 
 ## 红线
 
@@ -54,3 +56,5 @@
 - 任何面向外部用户或公共渠道的发送行为
 - 任何会离开本机或影响真实生产环境的动作
 - 常规编辑之外的破坏性清理动作
+
+
