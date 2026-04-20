@@ -1,4 +1,4 @@
-﻿# docs/README.md
+# docs/README.md
 
 本目录用于存放研发流程中的正式需求、设计、接口与架构文档。
 

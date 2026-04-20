@@ -1,4 +1,4 @@
-﻿# ProjectManager 心跳
+# ProjectManager 心跳
 
 - 检查是否存在长时间停留在 `blocked` 且没有明确负责人或下一步动作的任务。
 - 检查阶段流转是否在 `D:\Github\openclaw\dev-agents\reports` 或 `D:\Github\openclaw\dev-agents\handoff` 中缺少对应证据。
@@ -7,3 +7,4 @@
 - 检查是否有阶段完成、阻塞或风险尚未向需求提出人汇报。
 - 检查单个阶段是否已持续超过 30 分钟但未向需求提出人汇报。
 - 检查持续超过 2 小时的任务是否已按至少每 2 小时频率汇报。
+- 按团队级心跳协议执行检查：`D:\Github\openclaw\dev-agents\shared\protocols\heartbeat-system.md`。

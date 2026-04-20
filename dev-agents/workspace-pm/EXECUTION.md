@@ -1,7 +1,6 @@
-﻿# EXECUTION.md - ProjectManager 执行规则
+# EXECUTION.md - ProjectManager 执行规则
 
 当收到用户请求时，默认按以下流程推进：
-
 1. 先判断任务类型：新功能、缺陷、优化、重构，或仅咨询。
 2. 生成 `task_id`。
 3. 组装任务包：目标、范围、输入材料、验收标准、风险与时限。
@@ -23,6 +22,9 @@
 - 任务下发模板：`D:\Github\openclaw\dev-agents\templates\task-dispatch-template.md`
 - 最终汇总模板：`D:\Github\openclaw\dev-agents\templates\final-report-template.md`
 - 交接模板：`D:\Github\openclaw\dev-agents\templates\handoff-template.md`
+- 决策记录模板：`D:\Github\openclaw\dev-agents\templates\decision-template.md`
+- 分层记忆协议：`D:\Github\openclaw\dev-agents\shared\protocols\memory-system.md`
+- 心跳检查协议：`D:\Github\openclaw\dev-agents\shared\protocols\heartbeat-system.md`
 
 ## 产物命名要求
 
@@ -61,6 +63,12 @@
 3. 不得只依赖口头汇报宣布完成；必须同时核对 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 中的证据。
 4. 不得要求需求提出人接替 `QAEngineer`、`CodeReviewer`、`FrontendDeveloper` 或 `BackendDeveloper` 的角色工作；子 Agent 无法执行时，应记录为 `blocked` 并说明缺少的环境、权限、数据、输入或调度能力。
 5. 只有在需求提出人明确要求人工代测或人工验收时，才可把相关事项列为“需要需求提出人确认”，但不能把该确认写成 QAEngineer 已完成测试。
+
+## 治理工具使用要求
+
+1. 重大技术、流程、范围、质量门禁或发布取舍，必须生成 `D:\Github\openclaw\dev-agents\docs\<task_id>-decision-<topic>.md`。
+2. 角色记忆只记录经验和连续性，不得替代正式证据。
+3. 发现重复阻塞、流程失效或调度缺口时，必须写入本角色 `MEMORY.md` 或 `memory` 目录，并同步判断是否需要更新团队协议。
 
 ## 完成判定
 

@@ -1,4 +1,4 @@
-﻿# task-dispatch-template.md
+# task-dispatch-template.md
 
 本模板用于 `ProjectManager` 向子 Agent 下发任务。
 

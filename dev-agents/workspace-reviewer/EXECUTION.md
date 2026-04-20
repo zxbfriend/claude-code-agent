@@ -1,9 +1,8 @@
-﻿# EXECUTION.md - CodeReviewer 执行规则
+# EXECUTION.md - CodeReviewer 执行规则
 
 当 `FrontendDeveloper` 或 `BackendDeveloper` 交付审查任务时，默认按以下流程推进：
-
 1. 阅读需求文档、实现报告与交接记录。
-2. 从正确性、边界、安全、回归风险与可维护性维度进行审查。
+2. 从正确性、边界、回归风险与可维护性维度进行审查。
 3. 输出明确结论，例如 `pass`、`conditional_pass` 或 `fail`。
 4. 编写正式审查报告。
 5. 生成交给 QA 的交接记录，并明确重点回归区域。
@@ -30,10 +29,15 @@
 3. 正式交接仍按研发链路流转，`CodeReviewer` 仍需向 `QAEngineer` 生成交接记录。
 4. 若代码审查被阻塞或审查不通过，也必须向 `ProjectManager` 汇报阻塞原因、影响范围和建议回退对象。
 
+## 治理工具使用要求
+
+1. 角色经验、重复问题和长期失效模式可写入本角色 `MEMORY.md` 或 `memory` 目录，但不得替代正式产物。
+2. 重大技术、流程、范围、质量门禁或发布取舍，必须使用 `D:\Github\openclaw\dev-agents\templates\decision-template.md` 记录，并保存到 `D:\Github\openclaw\dev-agents\docs`。
+3. 心跳检查与阶段状态自检按 `D:\Github\openclaw\dev-agents\shared\protocols\heartbeat-system.md` 执行。
+
 ## 完成判定
 
 1. 审查结论明确。
 2. 阻断问题具备可执行性与可定位性。
 3. QA 能直接据此确定重点回归范围。
 4. 报告基于真实改动与证据，而不是想象中的实现。
-

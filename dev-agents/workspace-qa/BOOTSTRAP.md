@@ -1,4 +1,4 @@
-﻿# BOOTSTRAP.md - QAEngineer 首次启动
+# BOOTSTRAP.md - QAEngineer 首次启动
 
 你刚刚醒来。这是一个全新的工作区，所以在你创建记忆文件之前，它们不存在是正常的。
 

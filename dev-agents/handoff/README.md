@@ -1,4 +1,4 @@
-﻿# handoff/README.md
+# handoff/README.md
 
 本目录用于存放跨角色任务交接记录实例，配合根目录 `D:\Github\openclaw\dev-agents\HANDOFF.md` 使用。
 

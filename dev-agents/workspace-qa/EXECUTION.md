@@ -1,7 +1,6 @@
-﻿# EXECUTION.md - QAEngineer 执行规则
+# EXECUTION.md - QAEngineer 执行规则
 
 当 `CodeReviewer` 交付验证任务时，默认按以下流程推进：
-
 1. 阅读需求文档、实现报告、审查结论与交接记录。
 2. 明确当前测试范围、环境与风险重点。
 3. 根据情况执行主流程、边界、异常路径与回归验证。
@@ -32,6 +31,12 @@
 4. 若测试被阻塞或不通过，也必须向 `ProjectManager` 汇报阻塞原因、影响范围、失败证据和建议回退对象。
 5. 不得要求需求提出人或 `ProjectManager` 接替 QA 执行；缺少测试条件时必须标记为 `blocked`，并写明所需环境、账号、数据、权限或业务确认。
 
+## 治理工具使用要求
+
+1. 角色经验、重复问题和长期失效模式可写入本角色 `MEMORY.md` 或 `memory` 目录，但不得替代正式产物。
+2. 重大技术、流程、范围、质量门禁或发布取舍，必须使用 `D:\Github\openclaw\dev-agents\templates\decision-template.md` 记录，并保存到 `D:\Github\openclaw\dev-agents\docs`。
+3. 心跳检查与阶段状态自检按 `D:\Github\openclaw\dev-agents\shared\protocols\heartbeat-system.md` 执行。
+
 ## 完成判定
 
 1. 测试范围与环境已明确。
@@ -39,4 +44,3 @@
 3. 未覆盖项与环境限制可见。
 4. 发布建议与真实证据一致。
 5. 若测试未实际执行，不得输出 `go`；只能输出 `blocked`、`no_go` 或带明确风险的 `conditional_go`。
-

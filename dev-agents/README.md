@@ -1,16 +1,15 @@
-﻿# dev-agents - 软件开发多 Agent 协同配置
+# dev-agents - 软件开发多 Agent 协同配置
 
 本目录包含一套面向 OpenClaw `Sub-Agents` 模式的软件研发多 Agent 协同规范，覆盖从需求到交付的完整链路。
 
 ## 定位说明
 
 这套配置不是按渠道分流的 `Multi-Agent Routing`，而是按研发阶段协作的 `Sub-Agents` 编排方案。
-
 系统约束如下：
-
 1. 只有 `ProjectManager` 是外部用户入口 Agent
 2. 其他 Agent 不直接绑定外部渠道，只能由 `ProjectManager` 通过 OpenClaw 子 Agent 机制调用
 3. 正式研发链路以主 Agent 编排为准，`D:\Github\openclaw\dev-agents\handoff`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\docs` 用于留痕、审计和复盘
+4. 角色记忆、心跳检查和决策记录是仓库治理补充，不替代正式研发链路
 
 ## 团队角色
 
@@ -22,21 +21,17 @@
 | 后端开发 | BackendDeveloper | `workspace-backend-dev` | `backend_developer` | 后端代码实现、API 设计、业务逻辑实现 |
 | 代码审查员 | CodeReviewer | `workspace-reviewer` | `code_reviewer` | 代码质量审查、风险识别、问题分级 |
 | 测试工程师 | QAEngineer | `workspace-qa` | `qa_engineer` | 测试设计、执行验证、缺陷反馈、发布建议 |
-
 说明：本文档中的目录路径统一使用绝对路径；角色 ID 统一使用 PascalCase，Agent ID 统一使用 snake_case。
 
 ## 与文章示例的映射关系
 
 OpenClaw 文章示例采用 5 角色链路：`Director -> Requirement Analyst -> Developer -> Code Reviewer -> Tester`。
-
 本仓库在该思路上做了 6 角色扩展：
-
 1. `ProjectManager` 对应 `Director`
 2. `RequirementsAnalyst` 对应 `Requirement Analyst`
 3. `FrontendDeveloper + BackendDeveloper` 是对单一 `Developer` 的拆分
 4. `CodeReviewer` 对应 `Code Reviewer`
 5. `QAEngineer` 对应 `Tester`
-
 这种拆分更贴近真实软件研发协作，且保留了文章中的主流程编排思想。
 
 ## OpenClaw 运行模型
@@ -48,7 +43,6 @@ OpenClaw 文章示例采用 5 角色链路：`Director -> Requirement Analyst ->
 ### 2. 子 Agent 调度
 
 `ProjectManager` 通过 OpenClaw `Sub-Agents` 能力派发任务。实现层面采用文章示例中的 `sessions_spawn` 思路：
-
 1. 主 Agent 生成任务上下文
 2. 主 Agent 调用目标子 Agent
 3. 子 Agent 返回阶段结果
@@ -57,11 +51,9 @@ OpenClaw 文章示例采用 5 角色链路：`Director -> Requirement Analyst ->
 ### 3. 文档留痕
 
 OpenClaw 原生回调负责“任务执行”，仓库文档负责“过程留痕”：
-
 1. `D:\Github\openclaw\dev-agents\docs`：需求与设计文档
 2. `D:\Github\openclaw\dev-agents\reports`：阶段性结果报告
 3. `D:\Github\openclaw\dev-agents\handoff`：角色交接记录
-
 因此，文档交接单是治理补充，不替代 OpenClaw 原生任务回传。
 
 ## 协作协议
@@ -73,6 +65,14 @@ OpenClaw 原生回调负责“任务执行”，仓库文档负责“过程留�
 5. 共享入口与模板映射统一放在 `D:\Github\openclaw\dev-agents\shared`
 6. 各角色输入输出模板映射统一查看 `D:\Github\openclaw\dev-agents\shared\agent-template-map.md`
 7. OpenClaw 配置与运行说明统一查看 `D:\Github\openclaw\dev-agents\docs`
+8. 分层记忆和心跳检查协议统一查看 `D:\Github\openclaw\dev-agents\shared\protocols`
+9. 重要决策统一使用 `D:\Github\openclaw\dev-agents\templates\decision-template.md`
+
+## 治理扩展
+
+1. 分层记忆系统：各角色使用本工作区 `MEMORY.md` 与 `memory` 目录保存长期经验，但正式证据仍以根目录 `docs`、`reports`、`handoff` 为准。
+2. 心跳检查系统：各角色按 `D:\Github\openclaw\dev-agents\shared\protocols\heartbeat-system.md` 主动发现阻塞、证据缺失和阶段停滞。
+3. 决策记录：架构、流程、范围、质量门禁或发布取舍使用 `D:\Github\openclaw\dev-agents\templates\decision-template.md` 留痕。
 
 ## 任务模板
 
@@ -80,16 +80,12 @@ OpenClaw 原生回调负责“任务执行”，仓库文档负责“过程留�
 task_id: T-YYYYMMDD-001
 goal:
 - ...
-
 inputs:
 - ...
-
 outputs:
 - ...
-
 acceptance_criteria:
 - ...
-
 handoff_to:
 - ...
 ```
@@ -104,6 +100,7 @@ dev-agents/
 ├── reports/
 ├── handoff/
 ├── shared/
+├── tools/
 ├── workspace-pm/
 ├── workspace-analyst/
 ├── workspace-frontend-dev/

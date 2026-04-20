@@ -1,7 +1,6 @@
-﻿# EXECUTION.md - BackendDeveloper 执行规则
+# EXECUTION.md - BackendDeveloper 执行规则
 
 当 `RequirementsAnalyst` 或 `ProjectManager` 下发后端任务时，默认按以下流程推进：
-
 1. 阅读任务包、需求文档与已有交接记录。
 2. 明确后端范围、依赖关系与验收标准。
 3. 完成已批准的后端实现。
@@ -32,10 +31,15 @@
 3. 正式交接仍按研发链路流转，`BackendDeveloper` 仍需向 `CodeReviewer` 生成交接记录。
 4. 若后端开发被阻塞，也必须向 `ProjectManager` 汇报阻塞原因、影响范围和解除阻塞所需输入。
 
+## 治理工具使用要求
+
+1. 角色经验、重复问题和长期失效模式可写入本角色 `MEMORY.md` 或 `memory` 目录，但不得替代正式产物。
+2. 重大技术、流程、范围、质量门禁或发布取舍，必须使用 `D:\Github\openclaw\dev-agents\templates\decision-template.md` 记录，并保存到 `D:\Github\openclaw\dev-agents\docs`。
+3. 心跳检查与阶段状态自检按 `D:\Github\openclaw\dev-agents\shared\protocols\heartbeat-system.md` 执行。
+
 ## 完成判定
 
 1. 后端实现与已批准范围一致。
 2. 已留下最小自测证据。
 3. 已知风险与缺口已明确写出。
 4. 审查阶段无需靠猜测理解改动内容。
-

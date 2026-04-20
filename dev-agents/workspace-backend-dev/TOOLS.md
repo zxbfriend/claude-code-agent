@@ -1,4 +1,4 @@
-﻿# TOOLS.md - 本地说明
+# TOOLS.md - 本地说明
 
 本地工作区根目录：`D:\Github\openclaw\dev-agents`
 
