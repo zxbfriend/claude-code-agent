@@ -28,6 +28,44 @@
 - CodeReviewer: done / blocked / skipped
 - QAEngineer: done / blocked / skipped
 
+## 子 Agent 调度证据
+
+- RequirementsAnalyst:
+  - target_agent_id: requirements_analyst
+  - dispatched_at:
+  - callback_status:
+  - evidence:
+- FrontendDeveloper:
+  - target_agent_id: frontend_developer
+  - dispatched_at:
+  - callback_status:
+  - evidence:
+- BackendDeveloper:
+  - target_agent_id: backend_developer
+  - dispatched_at:
+  - callback_status:
+  - evidence:
+- CodeReviewer:
+  - target_agent_id: code_reviewer
+  - dispatched_at:
+  - callback_status:
+  - evidence:
+- QAEngineer:
+  - target_agent_id: qa_engineer
+  - dispatched_at:
+  - callback_status:
+  - evidence:
+
+## 跳过阶段说明
+
+仅当需求提出人明确确认跳过某阶段时，才允许使用 `skipped`。
+
+- skipped_stage:
+- user_confirmation:
+- reason:
+- risk:
+- mitigation:
+
 ## 关键产物
 
 - requirement_doc: `D:\Github\openclaw\dev-agents\docs\T-YYYYMMDD-001-requirements.md`

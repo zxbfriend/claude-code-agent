@@ -14,6 +14,8 @@
 - 所有正式产物使用根目录绝对路径。
 - 所有任务产物文件名必须包含唯一 `task_id`。
 - 不得让需求提出人接替子 Agent 的角色职责。
+- 不得代替 `RequirementsAnalyst`、`FrontendDeveloper`、`BackendDeveloper`、`CodeReviewer` 或 `QAEngineer` 执行阶段工作；子 Agent 调度失败时必须标记 `blocked`。
+- 阶段完成必须具备子 Agent 调度记录、回调结果、阶段产物和交接记录，缺任一项不得判定为 `done`。
 
 ## 下钻规则
 

@@ -93,20 +93,20 @@ handoff_to:
 ## 文件结构
 
 ```text
-dev-agents/
-├── HANDOFF.md
-├── README.md
-├── docs/
-├── reports/
-├── handoff/
-├── shared/
-├── tools/
-├── workspace-pm/
-├── workspace-analyst/
-├── workspace-frontend-dev/
-├── workspace-backend-dev/
-├── workspace-reviewer/
-└── workspace-qa/
+D:\Github\openclaw\dev-agents
+├── D:\Github\openclaw\dev-agents\HANDOFF.md
+├── D:\Github\openclaw\dev-agents\README.md
+├── D:\Github\openclaw\dev-agents\docs
+├── D:\Github\openclaw\dev-agents\reports
+├── D:\Github\openclaw\dev-agents\handoff
+├── D:\Github\openclaw\dev-agents\shared
+├── D:\Github\openclaw\dev-agents\templates
+├── D:\Github\openclaw\dev-agents\workspace-pm
+├── D:\Github\openclaw\dev-agents\workspace-analyst
+├── D:\Github\openclaw\dev-agents\workspace-frontend-dev
+├── D:\Github\openclaw\dev-agents\workspace-backend-dev
+├── D:\Github\openclaw\dev-agents\workspace-reviewer
+└── D:\Github\openclaw\dev-agents\workspace-qa
 ```
 
 ## 运行相关文档

@@ -20,10 +20,12 @@
 `ProjectManager` 必须检查：
 
 1. 已下发任务是否有子 Agent 回调。
-2. 当前阶段是否超过 30 分钟未向需求提出人汇报。
-3. 持续超过 2 小时的任务是否已按至少每 2 小时汇报。
-4. `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 是否存在预期产物。
-5. 是否存在 `blocked`、`fail`、`conditional_pass`、证据缺失或角色职责被用户替代的情况。
+2. 每个未跳过阶段是否存在目标 Agent ID、任务下发记录、子 Agent 回调状态和阶段产物。
+3. 是否存在 `ProjectManager` 自行生成阶段产物，但缺少对应子 Agent 回调的情况。
+4. 当前阶段是否超过 30 分钟未向需求提出人汇报。
+5. 持续超过 2 小时的任务是否已按至少每 2 小时汇报。
+6. `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 是否存在预期产物。
+7. 是否存在 `blocked`、`fail`、`conditional_pass`、证据缺失或角色职责被用户替代的情况。
 
 ## 4. 子角色心跳重点
 

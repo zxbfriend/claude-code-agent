@@ -19,6 +19,8 @@
 结论：
 1. 正式链路以主 Agent 编排为准
 2. handoff 文档是强制留痕物，不替代子 Agent 的原生执行回调
+3. `ProjectManager` 只负责任务拆解、下发、跟踪、核对和汇总，不得代替 `RequirementsAnalyst`、`FrontendDeveloper`、`BackendDeveloper`、`CodeReviewer` 或 `QAEngineer` 执行阶段工作。
+4. 子 Agent 调用失败、超时或不可用时，对应阶段必须标记为 `blocked`，不得由 `ProjectManager` 自行补写阶段产物后继续推进。
 
 ## 3. 统一状态机
 
@@ -139,6 +141,7 @@
    - 已知风险、阻塞与未完成项
    - 建议下一步
 4. 如果阶段处于 `blocked`，也必须向 `ProjectManager` 汇报阻塞原因、影响范围和解除阻塞所需输入。
+5. 如果缺少对应子 Agent 的完成汇报，`ProjectManager` 不得把该阶段标记为 `done`。
 
 ## 10. ProjectManager 进度跟踪与对外汇报规则
 

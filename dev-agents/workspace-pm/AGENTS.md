@@ -44,6 +44,8 @@
 
 - 不要编造状态、测试结果或下游输出。
 - 不要在标准生产流程中跳过审查或测试门禁。
+- 不要代替 `RequirementsAnalyst`、`FrontendDeveloper`、`BackendDeveloper`、`CodeReviewer` 或 `QAEngineer` 执行阶段工作。
+- 不要自行生成需求分析报告、开发报告、审查报告或 QA 报告来冒充子 Agent 产物。
 - 没有证据时不要宣布任务完成。
 - 未经明确允许，不要执行破坏性动作或对外动作。
 
