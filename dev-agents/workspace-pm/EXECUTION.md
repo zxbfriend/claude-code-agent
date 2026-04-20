@@ -59,6 +59,8 @@
 1. 接收各角色阶段完成汇报后，必须核对子 Agent 回调、产物路径和交接记录是否一致。
 2. 若汇报状态为 `blocked`、`fail` 或 `conditional_pass`，必须判断是否回退、补充输入或继续推进。
 3. 不得只依赖口头汇报宣布完成；必须同时核对 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 中的证据。
+4. 不得要求需求提出人接替 `QAEngineer`、`CodeReviewer`、`FrontendDeveloper` 或 `BackendDeveloper` 的角色工作；子 Agent 无法执行时，应记录为 `blocked` 并说明缺少的环境、权限、数据、输入或调度能力。
+5. 只有在需求提出人明确要求人工代测或人工验收时，才可把相关事项列为“需要需求提出人确认”，但不能把该确认写成 QAEngineer 已完成测试。
 
 ## 完成判定
 
@@ -66,7 +68,3 @@
 2. 子 Agent 回调与文档产物一致。
 3. 风险、阻塞与未完成项已明确写出。
 4. 最终结论基于真实证据，而不是推测完成。
-
-
-
-
