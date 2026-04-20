@@ -1,15 +1,22 @@
 ﻿# 后端开发报告
 
+## 文件命名规则
+
+- 文件名必须包含唯一 `task_id`
+- 推荐文件名：`T-YYYYMMDD-001-backend-developer-report.md`
+- 推荐保存路径：`D:\Github\openclaw\dev-agents\reports\T-YYYYMMDD-001-backend-developer-report.md`
+
 ## 基本信息
-- task_id:
+- task_id: T-YYYYMMDD-001
 - role: BackendDeveloper
 - status: done / blocked
 - owner:
 - updated_at:
 
 ## 输入基线
-- requirement_doc:
-- handoff_record:
+- requirement_doc: `D:\Github\openclaw\dev-agents\docs\T-YYYYMMDD-001-requirements.md`
+- api_doc: `D:\Github\openclaw\dev-agents\docs\T-YYYYMMDD-001-api.md`
+- handoff_record: `D:\Github\openclaw\dev-agents\handoff\T-YYYYMMDD-001-RequirementsAnalyst-to-BackendDeveloper.md`
 - acceptance_criteria:
 
 ## 实现摘要

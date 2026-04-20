@@ -141,10 +141,25 @@
 5. 所有正式产物文件名都必须包含唯一 `task_id`，避免第二个任务覆盖第一个任务的文档。
 6. 证据优先记录在交接单 `evidence` 字段中，必要时引用 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports` 或外部日志位置
 
-## 9. 执行纪律
+## 9. 阶段完成汇报规则
+
+1. 除 `ProjectManager` 外，每个角色在阶段任务完成后，必须向 `ProjectManager` 汇报阶段完成状态。
+2. 完成汇报不改变正式研发链路的 `to_role`，正式交接仍按 `RequirementsAnalyst -> FrontendDeveloper / BackendDeveloper -> CodeReviewer -> QAEngineer -> ProjectManager` 推进。
+3. 完成汇报必须包含：
+   - `task_id`
+   - 当前角色
+   - `status`
+   - 已生成产物的绝对路径
+   - 交接记录的绝对路径
+   - 已知风险、阻塞与未完成项
+   - 建议下一步
+4. 如果阶段处于 `blocked`，也必须向 `ProjectManager` 汇报阻塞原因、影响范围和解除阻塞所需输入。
+
+## 10. 执行纪律
 
 1. 不口头交接：必须落文档
 2. 不跳环节：非紧急场景必须按链路交接
 3. 不省证据：结论必须可复核
 4. 不藏风险：已知问题必须显式记录
 5. 不混淆运行层与协议层：OpenClaw 调度与文档留痕必须同时成立
+

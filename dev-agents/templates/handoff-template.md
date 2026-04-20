@@ -1,4 +1,12 @@
 ﻿## Handoff
+
+## 文件命名规则
+
+- 交接单文件名必须包含唯一 `task_id`
+- 推荐文件名：`T-YYYYMMDD-001-<from>-to-<to>.md`
+- 推荐保存路径：`D:\Github\openclaw\dev-agents\handoff\T-YYYYMMDD-001-<from>-to-<to>.md`
+
+## 交接内容
 - task_id: T-YYYYMMDD-001
 - from_role: ProjectManager / RequirementsAnalyst / FrontendDeveloper / BackendDeveloper / CodeReviewer / QAEngineer
 - to_role: RequirementsAnalyst / FrontendDeveloper / BackendDeveloper / CodeReviewer / QAEngineer / ProjectManager

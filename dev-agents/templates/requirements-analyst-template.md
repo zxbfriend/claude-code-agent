@@ -1,7 +1,13 @@
 ﻿# 需求分析报告
 
+## 文件命名规则
+
+- 文件名必须包含唯一 `task_id`
+- 推荐文件名：`T-YYYYMMDD-001-requirements-analyst-report.md`
+- 推荐保存路径：`D:\Github\openclaw\dev-agents\reports\T-YYYYMMDD-001-requirements-analyst-report.md`
+
 ## 基本信息
-- task_id:
+- task_id: T-YYYYMMDD-001
 - role: RequirementsAnalyst
 - status: done / blocked
 - owner:

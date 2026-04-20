@@ -27,9 +27,15 @@
 ## 产物命名要求
 
 1. 在下发任务时必须先生成唯一 `task_id`。
-2. 所有正式产物文件名都必须包含该 `task_id`。
+2. 所有正式产物文件名都必须包含唯一 `task_id`。
 3. 需求文档、报告、交接单的命名必须符合 `D:\Github\openclaw\dev-agents\HANDOFF.md` 与各目录 `README.md` 中的规则。
 4. 禁止下游角色使用不带 `task_id` 的文件名，避免第二个任务覆盖第一个任务的产物。
+
+## 完成汇报处理要求
+
+1. 接收各角色阶段完成汇报后，必须核对子 Agent 回调、产物路径和交接记录是否一致。
+2. 若汇报状态为 `blocked`、`fail` 或 `conditional_pass`，必须判断是否回退、补充输入或继续推进。
+3. 不得只依赖口头汇报宣布完成；必须同时核对 `D:\Github\openclaw\dev-agents\docs`、`D:\Github\openclaw\dev-agents\reports`、`D:\Github\openclaw\dev-agents\handoff` 中的证据。
 
 ## 完成判定
 
@@ -37,3 +43,5 @@
 2. 子 Agent 回调与文档产物一致。
 3. 风险、阻塞与未完成项已明确写出。
 4. 最终结论基于真实证据，而不是推测完成。
+
+
