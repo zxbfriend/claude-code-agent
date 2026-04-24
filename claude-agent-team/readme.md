@@ -1,4 +1,5 @@
-### 启用 agent team 功能
+## 一、如何配置
+### 1.启用 agent team 功能
 修改 settings.json 
 
 ```json
@@ -8,14 +9,19 @@
   }
 }
 ```
+### 2.将CLAUDE.md 和 .claude 目录添加到项目根目录
 
+## 二、如何使用
 ### 多智能体协作推荐的触发语：
 
 请按照项目的 Agent Team 配置处理以下任务，先用 pm-agent 分析，再按流程调用对应 Agent：[你的需求描述]
 
-### 如何在老项目中复用：
+## 三、如何在老项目中复用：
 
-请完整阅读 D:\xxxxx 项目源码，系统梳理并提取以下八类关键信息，逐项补充到 claude-agent-team 配置描述中，确保内容准确、格式统一、可维护：
+根据下面的提示词发个ai，让他帮你修改
+
+```
+请完整阅读 D:\Github\zhixianweilai\yaoming_shengwu 项目源码，系统梳理并提取以下八类关键信息，逐项补充到 claude-agent-team 配置描述中，确保内容准确、格式统一、可维护：
 
 1. 项目结构  
    以树状层级列出源码根目录下的所有一级与二级目录，标注各目录的职能（如：config、src、tests、docs、scripts、public、build 等），并说明关键配置文件（package.json、pom.xml、Dockerfile、.env.* 等）的位置与作用。
@@ -57,3 +63,4 @@
    每项给出命令、示例输出片段与结果判读标准。
 
 最终交付：将上述八项内容按顺序整理成 Markdown 表格或 YAML 片段，直接追加写入 claude-agent-team 配置描述文件，确保后续 Agent 可一键读取并准确理解项目上下文。
+```
