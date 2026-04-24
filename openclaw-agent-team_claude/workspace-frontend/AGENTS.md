@@ -17,6 +17,32 @@
 
 ---
 
+## ACP 操作规程
+
+### sessions_spawn 参数确认
+
+```
+runtime:           "acp"
+agentId:           "claude"
+cwd:               {项目根目录绝对路径}
+streamTo:          "parent"
+mode:              "run"
+runTimeoutSeconds: 1200
+```
+
+### 干预指令速查
+
+| 场景 | 指令 |
+|------|------|
+| Claude Code 理解偏差 | `/acp steer <id> "<新指令>"` |
+| 中止任务 | `/acp cancel <id>` |
+| 中断后恢复 | `sessions_spawn(runtime:"acp", resumeSessionId:"<id>", ...)` |
+| 检查 ACP 环境 | `/acp doctor` |
+
+---
+
+---
+
 ## 开发流程
 
 按以下顺序实现，不跳步：
@@ -60,29 +86,18 @@
 
 ## 阶段进度上报规程
 
-**强制要求**：每完成下表中的一个节点，立即通过 message 工具发送进度消息。
+接入 ACP + Claude Code 后，进度上报机制发生根本性变化：
 
-上报格式：
-```
-📍 Frontend 进度更新
-当前阶段：{阶段名}
-已完成：{完成的内容}
-下一步：{接下来要做什么}
-```
+**`streamTo: "parent"` 负责实时进度**
+Claude Code 的每一个文件操作实时流回对话，用户可直接看到进展。
 
-上报节点（共 7 个）：
+**你（Frontend Agent）负责关键节点播报**
 
-| # | 节点 | 触发时机 |
-|---|------|---------|
-| 1 | 任务启动 | 读完文档，确认接口规范无歧义，准备动手前 |
-| 2 | HTTP 工具完成 | Axios 实例封装完成（含 token 注入、错误处理）|
-| 3 | 路由和状态完成 | 路由配置 + 用户状态管理（store）写完后 |
-| 4 | API 封装完成 | src/api/ 下所有接口调用函数写完后 |
-| 5 | 页面组件完成 | 所有业务页面组件写完后 |
-| 6 | 子组件完成 | 可复用子组件写完后（如无则跳过此节点）|
-| 7 | 任务结束 | 写入 STATUS: done 前 |
-
-> 两次上报之间最大间隔不超过 5 分钟。
+| # | 节点 | 时机 | 消息内容 |
+|---|------|------|---------|
+| 1 | ACP 启动前 | sessions_spawn 调用前 | "📍 Frontend 任务已准备就绪，正在启动 Claude Code 进行编码..." |
+| 2 | 发现问题 | Claude Code 遇到错误需要 steer 时 | "⚠️ Frontend：Claude Code 遇到 {问题}，正在引导修正..." |
+| 3 | 任务完成 | 写入 STATUS: done 前 | "✅ Frontend 编码完成，build {通过/失败}，产出已写入 output/frontend.md" |
 
 
 ---

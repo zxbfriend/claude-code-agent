@@ -17,6 +17,32 @@
 
 ---
 
+## ACP 操作规程
+
+### sessions_spawn 参数确认
+
+```
+runtime:           "acp"
+agentId:           "claude"
+cwd:               {项目根目录绝对路径}
+streamTo:          "parent"
+mode:              "run"
+runTimeoutSeconds: 1200
+```
+
+### 干预指令速查
+
+| 场景 | 指令 |
+|------|------|
+| Claude Code 理解偏差 | `/acp steer <id> "<新指令>"` |
+| 中止任务 | `/acp cancel <id>` |
+| 中断后恢复 | `sessions_spawn(runtime:"acp", resumeSessionId:"<id>", ...)` |
+| 检查 ACP 环境 | `/acp doctor` |
+
+---
+
+---
+
 ## 开发流程
 
 ```
@@ -50,29 +76,18 @@
 
 ## 阶段进度上报规程
 
-**强制要求**：每完成下表中的一个节点，立即通过 message 工具发送进度消息。
+接入 ACP + Claude Code 后，进度上报机制发生根本性变化：
 
-上报格式：
-```
-📍 Mobile 进度更新
-当前阶段：{阶段名}
-已完成：{完成的内容}
-下一步：{接下来要做什么}
-```
+**`streamTo: "parent"` 负责实时进度**
+Claude Code 的每一个文件操作实时流回对话，用户可直接看到进展。
 
-上报节点（共 7 个）：
+**你（Mobile Agent）负责关键节点播报**
 
-| # | 节点 | 触发时机 |
-|---|------|---------|
-| 1 | 任务启动 | 读完文档，确认接口规范，准备动手前 |
-| 2 | 存储和 HTTP 完成 | SecureStore + Axios 封装完成后 |
-| 3 | 导航结构完成 | 认证栈 / 主应用栈导航配置写完后 |
-| 4 | API 封装完成 | src/api/ 下所有接口调用函数写完后 |
-| 5 | 页面完成 | 所有 Screen 页面写完后 |
-| 6 | 平台适配完成 | iOS/Android 差异处理完成后（SafeAreaView 等）|
-| 7 | 任务结束 | 写入 STATUS: done 前 |
-
-> 两次上报之间最大间隔不超过 5 分钟。
+| # | 节点 | 时机 | 消息内容 |
+|---|------|------|---------|
+| 1 | ACP 启动前 | sessions_spawn 调用前 | "📍 Mobile 任务已准备就绪，正在启动 Claude Code 进行编码..." |
+| 2 | 发现问题 | Claude Code 遇到问题需要 steer 时 | "⚠️ Mobile：Claude Code 遇到 {问题}，正在引导修正..." |
+| 3 | 任务完成 | 写入 STATUS: done 前 | "✅ Mobile 编码完成，产出已写入 output/mobile.md" |
 
 
 ---

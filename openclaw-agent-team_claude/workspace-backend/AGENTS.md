@@ -17,6 +17,42 @@
 
 ---
 
+## ACP 操作规程
+
+### sessions_spawn 参数确认
+
+启动 Claude Code 前，确认以下参数：
+
+```
+runtime:          "acp"              ← 必须显式指定，默认是 subagent
+agentId:          "claude"           ← 指定 Claude Code
+cwd:              {项目代码根目录}    ← 绝对路径，Claude Code 在此目录操作文件
+streamTo:         "parent"           ← 进度实时回传，不可省略
+mode:             "run"              ← 单次执行模式
+runTimeoutSeconds: 1800              ← 30 分钟，复杂任务可调大
+```
+
+### 干预指令速查
+
+| 场景 | 指令 |
+|------|------|
+| Claude Code 理解偏差需纠正 | `/acp steer <id> "<新指令>"` |
+| 查看 Claude Code 运行状态 | `/acp status <id>` |
+| 查看 Claude Code 详细日志 | `/acp sessions` 找到 session 后查看 |
+| 中止当前编码任务 | `/acp cancel <id>` |
+| 任务中断后恢复 | `sessions_spawn(runtime:"acp", resumeSessionId:"<id>", ...)` |
+
+### 常见问题处理
+
+| 问题 | 处理方式 |
+|------|---------|
+| Claude Code 找不到项目文件 | 检查 cwd 路径是否正确，steer 补充正确路径 |
+| mvn test 失败 | steer 要求 Claude Code 查看失败原因并修复 |
+| 超出 timeout | 拆分任务，分多次 spawn |
+| ACP spawn 失败 | 运行 `/acp doctor` 检查 Claude Code 安装状态 |
+
+---
+
 ## 开发流程
 
 严格按以下顺序实现，不跳步：
@@ -64,30 +100,22 @@
 
 ## 阶段进度上报规程
 
-**这是强制要求**：每完成下表中的一个节点，必须立即通过 message 工具发送进度消息，不可跳过或合并。
+接入 ACP + Claude Code 后，进度上报机制发生根本性变化：
 
-上报格式：
-```
-📍 Backend 进度更新
-当前阶段：{阶段名}
-已完成：{完成的内容}
-下一步：{接下来要做什么}
-```
+**`streamTo: "parent"` 负责实时进度**
+Claude Code 的每一个文件操作、命令执行都会实时流回对话，
+用户可以直接看到 Claude Code 正在做什么，无需手动发送进度消息。
 
-上报节点（按开发顺序，共 8 个）：
+**你（Backend Agent）负责关键节点播报**
+在以下 3 个节点主动向用户发送消息：
 
-| # | 节点 | 触发时机 |
-|---|------|---------|
-| 1 | 任务启动 | 读完所有文档，确认信息无误，准备动手前 |
-| 2 | Entity 完成 | 所有数据库实体类写完后 |
-| 3 | Mapper 完成 | 所有 Mapper 接口写完后 |
-| 4 | Service 完成 | Service 接口 + ServiceImpl 核心逻辑写完后 |
-| 5 | Controller 完成 | 所有 Controller 写完后 |
-| 6 | DTO/VO 完成 | 请求/响应数据结构类写完后 |
-| 7 | 测试完成 | 单元测试全部写完后 |
-| 8 | 任务结束 | 写入 STATUS: done 前 |
+| # | 节点 | 时机 | 消息内容 |
+|---|------|------|---------|
+| 1 | ACP 启动前 | sessions_spawn 调用前 | "📍 Backend 任务已准备就绪，正在启动 Claude Code 进行编码..." |
+| 2 | 发现问题 | Claude Code 遇到错误需要 steer 时 | "⚠️ Backend：Claude Code 遇到 {问题}，正在引导修正..." |
+| 3 | 任务完成 | 写入 STATUS: done 前 | "✅ Backend 编码完成，mvn test {通过/失败 n 个}，产出已写入 output/backend.md" |
 
-> 两次上报之间的最大间隔不应超过 5 分钟。如果某一层代码预计超过 5 分钟，中途也要上报一次进度。
+> 节点 1 和 3 之间的细粒度进度由 ACP stream 实时展示，不需要手动上报。
 
 ---
 
