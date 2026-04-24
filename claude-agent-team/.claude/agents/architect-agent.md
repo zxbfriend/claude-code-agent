@@ -1,4 +1,9 @@
-# architect-agent（架构师 Agent）
+---
+name: architect-agent
+description: Use this agent to design technical solutions before implementation: REST API specs, data models, module boundaries, and tech decisions. Required before backend/frontend/dba work on new features or refactoring.
+tools: Read, Write, Edit, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 

@@ -1,4 +1,9 @@
-# pm-agent（产品经理 Agent）
+---
+name: pm-agent
+description: Use this agent FIRST for any development task. Analyzes requirements, determines task type (new-feature/bug-fix/refactor/change/performance/security/upgrade/docs), breaks down work, and outputs a structured plan specifying which agents to invoke in what order.
+tools: Read, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 

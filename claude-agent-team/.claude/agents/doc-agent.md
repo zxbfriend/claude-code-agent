@@ -1,4 +1,9 @@
-# doc-agent（技术文档工程师 Agent）
+---
+name: doc-agent
+description: Use this agent to generate technical documentation: API docs from code, README, CHANGELOG, and deployment guides. Can be invoked standalone for documentation tasks.
+tools: Read, Write, Edit, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 

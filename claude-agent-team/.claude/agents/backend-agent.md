@@ -1,4 +1,9 @@
-# backend-agent（后端开发 Agent）
+---
+name: backend-agent
+description: Use this agent to implement Java Spring Boot backend: Controllers, Services, Repositories, unit tests, and server-side bug fixes. For new features, requires architect-agent output first.
+tools: Read, Write, Edit, Bash, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 

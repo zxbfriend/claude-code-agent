@@ -1,4 +1,9 @@
-# devops-agent（DevOps 工程师 Agent）
+---
+name: devops-agent
+description: Use this agent for CI/CD pipelines, Dockerfile, Kubernetes manifests, monitoring configuration, and deployment automation.
+tools: Read, Write, Edit, Bash, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 

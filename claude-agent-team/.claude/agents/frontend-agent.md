@@ -1,4 +1,9 @@
-# frontend-agent（前端开发 Agent）
+---
+name: frontend-agent
+description: Use this agent to implement web frontend: React or Vue components, pages, API integration, and frontend bug fixes.
+tools: Read, Write, Edit, Bash, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 

@@ -1,4 +1,9 @@
-# qa-agent（测试工程师 Agent）
+---
+name: qa-agent
+description: Use this agent after development is complete: write test cases, run functional and regression tests, verify bug fixes, and produce a test report. For refactors, runs full P0+P1+P2 suite.
+tools: Read, Write, Edit, Bash, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 

@@ -1,4 +1,9 @@
-# reviewer-agent（Code Reviewer Agent）
+---
+name: reviewer-agent
+description: Use this agent as the FINAL quality gate after development and QA pass. Reviews code for naming conventions, null safety, transaction boundaries, architecture compliance, and security baseline. Outputs Pass/Needs-Fix/Reject verdict.
+tools: Read, Glob, Grep
+model: sonnet
+---
 
 ## 角色定位
 
