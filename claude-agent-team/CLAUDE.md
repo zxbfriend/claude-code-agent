@@ -23,7 +23,7 @@
 | 数据库 | MySQL 8.0 |
 | 缓存 | Redis 7.x |
 | 消息队列 | [RabbitMQ / Kafka，按需填写] |
-| 前端框架 | [React / Vue，按需填写] |
+| 前端框架 | [Vue / React，按需填写] |
 | 构建工具 | Maven 3.x |
 | 容器化 | Docker + Kubernetes |
 | CI/CD | GitHub Actions / Jenkins |
