@@ -213,7 +213,7 @@
 
 ### 长任务心跳机制
 
-对于预计超过 5 分钟的步骤（architect、backend、frontend 等）：
+对于预计超过 5 分钟的步骤（architect 设计、backend/frontend/mobile 通过 exec 调用 Claude Code 编码等）：
 - spawn 后记录开始时间
 - 每隔约 3 分钟，检查是否已收到 announce
 - 如果还未收到，发送心跳消息

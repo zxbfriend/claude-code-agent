@@ -94,11 +94,13 @@
 
 步骤 4：并行开发（同时 spawn 相关开发 Agent）
   - 根据涉及端决定 spawn 哪些 agent：
-    * 有后端 → spawn backend
-    * 有前端 → spawn frontend
-    * 有移动端 → spawn mobile
+    * 有后端 → spawn backend（runTimeoutSeconds: 1800）
+    * 有前端 → spawn frontend（runTimeoutSeconds: 1800）
+    * 有移动端 → spawn mobile（runTimeoutSeconds: 1800）
   - 每个 agent 读取 DESIGN.md 和自己负责的 tasks
+  - 各开发 agent 内部通过 exec 调用 Claude Code 完成实际编码
   - 等待所有开发 agent 的 STATUS: done 后继续
+  - 编码耗时较长（15-30 分钟），期间 PM 心跳每 3 分钟自动播报进度
 
 步骤 5：测试验证（spawn qa）
   - 任务：读取 PRD.md + 各 output/*.md，编写并执行测试

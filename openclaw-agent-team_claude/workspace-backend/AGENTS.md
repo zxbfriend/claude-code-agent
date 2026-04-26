@@ -17,107 +17,58 @@
 
 ---
 
-## ACP 操作规程
+## exec 操作规程
 
-### sessions_spawn 参数确认
-
-启动 Claude Code 前，确认以下参数：
+### exec 调用格式（前台执行，等待完成）
 
 ```
-runtime:          "acp"              ← 必须显式指定，默认是 subagent
-agentId:          "claude"           ← 指定 Claude Code
-cwd:              {项目代码根目录}    ← 绝对路径，Claude Code 在此目录操作文件
-streamTo:         "parent"           ← 进度实时回传，不可省略
-mode:             "run"              ← 单次执行模式
-runTimeoutSeconds: 1800              ← 30 分钟，复杂任务可调大
+exec:
+  pty: true
+  workdir: {若依项目根目录绝对路径}
+  timeout: 1500
+  command: "claude --permission-mode bypassPermissions --print '{任务提示}'"
 ```
-
-### 干预指令速查
-
-| 场景 | 指令 |
-|------|------|
-| Claude Code 理解偏差需纠正 | `/acp steer <id> "<新指令>"` |
-| 查看 Claude Code 运行状态 | `/acp status <id>` |
-| 查看 Claude Code 详细日志 | `/acp sessions` 找到 session 后查看 |
-| 中止当前编码任务 | `/acp cancel <id>` |
-| 任务中断后恢复 | `sessions_spawn(runtime:"acp", resumeSessionId:"<id>", ...)` |
 
 ### 常见问题处理
 
 | 问题 | 处理方式 |
 |------|---------|
-| Claude Code 找不到项目文件 | 检查 cwd 路径是否正确，steer 补充正确路径 |
-| mvn test 失败 | steer 要求 Claude Code 查看失败原因并修复 |
-| 超出 timeout | 拆分任务，分多次 spawn |
-| ACP spawn 失败 | 运行 `/acp doctor` 检查 Claude Code 安装状态 |
+| Claude Code 找不到项目文件 | 检查 workdir 是否是若依项目根目录绝对路径 |
+| mvn compile 报错 | 重新 exec，让 Claude Code 查看错误并修复 |
+| 执行超时 | 拆分任务，分两次 exec 执行 |
+| exec 返回 approval-pending | openclaw.json 的 allowlist 未包含 claude |
+| claude 命令找不到 | 确认已安装：`which claude` |
 
----
-
-## 开发流程
-
-严格按以下顺序实现，不跳步：
+### 补充修正
 
 ```
-1. Entity 类（对应数据库表）
-2. Mapper 接口（继承 BaseMapper）
-3. Service 接口
-4. ServiceImpl 实现类（核心业务逻辑）
-5. Controller（只做参数绑定和响应封装）
-6. DTO / VO 类（请求和响应的数据结构）
-7. 统一异常处理（如项目中尚未存在）
-8. 数据库迁移 SQL（如有表结构变更）
-9. Service 层单元测试
+exec:
+  pty: true
+  workdir: {若依项目根目录}
+  command: "claude --permission-mode bypassPermissions --print '请修正以下问题：{问题}'"
 ```
 
+### 注意事项
+
+- 绝对不要把 workdir 设为 `~/.openclaw/`
+- exec 前台执行会阻塞，这是预期行为，PM 心跳每 3 分钟播报进度
+- 每次 exec 都是独立进程，Claude Code 自动读取 workdir 下的 CLAUDE.md
+
 ---
-
-## 代码自检清单
-
-提交 `output/backend.md` 前，逐项确认：
-
-**与 DESIGN.md 一致性**
-- [ ] 所有接口路径、HTTP 方法与 DESIGN.md 完全一致？
-- [ ] 请求参数字段名和类型与 DESIGN.md 完全一致？
-- [ ] 响应结构使用了统一 `Result<T>`，字段名与 DESIGN.md 一致？
-
-**安全性**
-- [ ] 所有接口入参都加了 `@Valid` 或 `@Validated`？
-- [ ] 密码字段使用 BCrypt 加密？
-- [ ] 需要认证的接口加了权限控制？
-- [ ] 没有硬编码的密钥或密码？
-
-**代码质量**
-- [ ] Controller 中没有业务逻辑（只有参数接收 + 调用 Service + 返回结果）？
-- [ ] 没有将 Entity 直接返回给前端（必须转 VO）？
-- [ ] 异常处理通过自定义异常类 + GlobalExceptionHandler 统一处理？
-- [ ] 没有 `e.printStackTrace()`，统一使用日志框架（SLF4J / Logback）？
-
-**测试**
-- [ ] Service 层核心逻辑有单元测试？
-- [ ] 测试覆盖了正常流程和至少 2 个异常分支？
 
 ---
 
 ## 阶段进度上报规程
 
-接入 ACP + Claude Code 后，进度上报机制发生根本性变化：
-
-**`streamTo: "parent"` 负责实时进度**
-Claude Code 的每一个文件操作、命令执行都会实时流回对话，
-用户可以直接看到 Claude Code 正在做什么，无需手动发送进度消息。
-
-**你（Backend Agent）负责关键节点播报**
-在以下 3 个节点主动向用户发送消息：
+exec 调用 Claude Code 期间，你（Backend Agent）需要在以下 3 个关键节点
+主动向用户发送消息（Claude Code 的逐行输出由 pty stream 实时展示，
+你只需播报关键状态）：
 
 | # | 节点 | 时机 | 消息内容 |
 |---|------|------|---------|
-| 1 | ACP 启动前 | sessions_spawn 调用前 | "📍 Backend 任务已准备就绪，正在启动 Claude Code 进行编码..." |
-| 2 | 发现问题 | Claude Code 遇到错误需要 steer 时 | "⚠️ Backend：Claude Code 遇到 {问题}，正在引导修正..." |
-| 3 | 任务完成 | 写入 STATUS: done 前 | "✅ Backend 编码完成，mvn test {通过/失败 n 个}，产出已写入 output/backend.md" |
-
-> 节点 1 和 3 之间的细粒度进度由 ACP stream 实时展示，不需要手动上报。
-
----
+| 1 | exec 启动前 | exec 调用前 | "📍 Backend 任务已准备就绪，正在启动 Claude Code 进行编码..." |
+| 2 | 发现问题 | exec 返回错误，需要重新调用时 | "⚠️ Backend：Claude Code 遇到 {问题}，正在引导修正..." |
+| 3 | 任务完成 | 写入 STATUS: done 前 | "✅ Backend 编码完成，mvn compile {通过/失败}，产出已写入 output/backend.md" |
 
 ## 记忆管理
 
