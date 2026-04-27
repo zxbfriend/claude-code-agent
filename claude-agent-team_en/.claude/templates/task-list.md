@@ -19,6 +19,7 @@ This file is created and maintained by `pm-agent`. It is the single source of tr
 - Branch: `{feature/fix/refactor}/TASK-{YYYYMMDD}-{NNN}`
 - Context Package: `.claude/config/VARIABLES.md`
 - Messaging Protocol: `.claude/messaging/PROTOCOL.md`
+- Max Concurrent Agents: `4`
 
 ## Execution Snapshot
 
@@ -43,6 +44,8 @@ This file is created and maintained by `pm-agent`. It is the single source of tr
     "file_domain": [
       "outputs/{TIMESTAMP}_{PROJECT_ID}/design/"
     ],
+    "shared_file_mods": [],
+    "flyway_version": null,
     "branch": "feature/TASK-20260427-001",
     "output_path": "outputs/{TIMESTAMP}_{PROJECT_ID}/design/auth_TECH-SPEC.md",
     "context": {
@@ -54,6 +57,20 @@ This file is created and maintained by `pm-agent`. It is the single source of tr
   }
 ]
 ```
+
+## Shared File Rules
+
+Shared files include `pom.xml`, `build.gradle`, `package.json`, lockfiles, `docker-compose.yml`, `k8s/*.yaml`, Helm charts, `.env.example`, `application.yml`, and `application.properties`.
+
+If multiple tasks need the same shared file:
+
+1. choose one owner task for the edit
+2. list the intended edit in `shared_file_mods`
+3. add `depends_on` edges so only one shared-file owner runs at a time
+
+## Flyway Version Rules
+
+`pm-agent` assigns `flyway_version` to every dba-agent migration task before it starts. dba-agent must use the assigned value and block if it is missing.
 
 ## Lead Checklist
 

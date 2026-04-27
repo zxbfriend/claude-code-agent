@@ -41,6 +41,9 @@ git checkout {BRANCH} || git checkout -b {BRANCH}
 
 # 4. Confirm file domain
 # Read FILE_DOMAIN from the pm-agent start instruction and task list.
+
+# 5. Check shared file mods
+# If shared_file_mods contains pom.xml/application.yml/etc., modify only when this task is the assigned owner.
 ```
 
 If no tech spec exists, message pm-agent: "Cannot begin — tech spec not available."
@@ -145,6 +148,20 @@ Backend implementation completed.
 
 Follow-ups:
 {none or bullet list}
+```
+
+## Bug Fix Completion Message
+
+When fixing a bug reported by qa-agent, reviewer-agent, or security-agent, send:
+
+```text
+BUG-FIXED: {BUG_ID}
+Task: {TASK_ID}
+Fixed by: backend-agent
+Branch: {BRANCH}
+Commit: {commit-hash}
+Retest Scope: {test cases or endpoints}
+Awaiting re-test by qa-agent
 ```
 
 ---

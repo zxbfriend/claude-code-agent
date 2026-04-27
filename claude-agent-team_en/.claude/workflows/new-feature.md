@@ -24,7 +24,7 @@ If blocked, the first reply must say:
 ## Flow
 
 1. Analyze the request and impacted layers.
-2. Check whether a decision gate is required.
+2. Perform only a preliminary decision gate check; architect-agent makes the final decision gate assessment during design.
 3. Have `architect-agent` produce the technical design.
 4. Split implementation into backend, frontend, DBA, QA, and review tasks as needed.
 5. Start the first runnable task immediately.
@@ -36,4 +36,3 @@ If blocked, the first reply must say:
 - If at least one task is active, name the active task ID and assignee.
 - If all tasks are `pending`, explicitly say execution has not started.
 - Do not imply progress is being monitored when no task is active.
-

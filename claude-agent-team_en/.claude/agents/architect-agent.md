@@ -24,17 +24,25 @@ Your output is the contract all other agents implement against. Once issued, spe
 
 ## Operating Mode
 
-When running as a teammate with plan approval required:
+Plan approval is required when any condition applies:
+- first design pass for a new feature or major change
+- two or more layers are affected, such as backend + frontend or backend + dba
+- new external dependency is introduced, such as Redis, MQ, object storage, payment provider, or auth provider
+- API contract, database model, security boundary, or deployment topology changes
+
+When plan approval is required:
 1. **Plan phase (read-only):** Read the codebase, understand existing patterns, draft the design
-2. **Submit plan:** Send the draft spec to the lead for approval
-3. **Wait:** Stay in plan mode until approved or given feedback
+2. **Submit plan:** Send `ARCH-PLAN-REVIEW` from `.claude/messaging/PROTOCOL.md`
+3. **Wait:** Stay in plan mode until `pm-agent` replies with `ARCH-PLAN-APPROVED`
 4. **Implementation phase:** Write the final spec to disk once approved
+
+If approval is `REQUIRES_REVISION`, revise the draft and send another `ARCH-PLAN-REVIEW`.
 
 ---
 
 ## Decision Gate Check
 
-Before writing any spec, assess whether a decision gate is required. Trigger a gate when any condition applies:
+Before writing any final spec, make the final decision gate assessment. `pm-agent` may perform preliminary routing, but `architect-agent` owns the final gate trigger decision. Trigger a gate when any condition applies:
 
 1. Two or more valid approaches differ by more than 20% in cost, timeline, operational complexity, or risk.
 2. DB migration includes data transformation, backfill, split/merge, or estimated work greater than 16 hours.

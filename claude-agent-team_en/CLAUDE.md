@@ -39,7 +39,7 @@ The order list API is slow (>3s). Create a team to diagnose and fix.
 pm-agent will:
 1. Classify the task type
 2. Determine which agents are needed (dba-agent is optional, only if DB changes required)
-3. Check if a human decision gate is needed (multiple valid approaches → pause for human)
+3. Pre-check if a human decision gate may be needed; architect-agent makes the final gate decision during design
 4. Create the shared task list
 5. Spawn the appropriate teammates
 
@@ -128,13 +128,25 @@ Never commit directly to `main` or `master`.
 Do not trigger a gate for standard CRUD, root-cause-clear bug fixes, or documentation-only work.
 
 **Mechanism:**
-1. architect-agent creates a `decision-required` task on the shared task list
-2. All implementation tasks declare a dependency on this task
-3. pm-agent detects the blocked state and presents options to the human
-4. Human selects an option → pm-agent marks the decision task `completed` with the chosen path
-5. Dependent tasks unblock automatically
+1. pm-agent may pre-create a blocker only when the decision need is obvious from the request.
+2. architect-agent makes the final gate decision during design.
+3. architect-agent creates a `decision-required` task and sends `DECISION-REQUIRED`.
+4. pm-agent replies with `ACK`, presents options to the human, and keeps dependent tasks `pending`.
+5. Human selects an option.
+6. pm-agent marks the decision task `completed` with `decision`, `decision_timestamp`, and `decision_notes`.
+7. pm-agent immediately scans dependent tasks and starts every task whose dependencies are now complete and whose start does not violate concurrency or shared-file rules.
 
 **Decision output format:** See `.claude/templates/decision-gate.md`
+
+## 6.1 Plan Approval Protocol
+
+architect-agent must request plan approval before writing the final tech spec when:
+- it is the first design for a new feature or major change
+- two or more layers are affected
+- a new external dependency is introduced
+- API contract, database model, security boundary, or deployment topology changes
+
+Message formats: `ARCH-PLAN-REVIEW` and `ARCH-PLAN-APPROVED` in `.claude/messaging/PROTOCOL.md`.
 
 ---
 
@@ -149,9 +161,11 @@ Tasks on the shared list use this structure:
   "title": "Short task title",
   "description": "What needs to be done",
   "assignee": "agent-name or unassigned",
-  "status": "pending|in_progress|completed",
+  "status": "pending|in_progress|blocked|completed",
   "depends_on": ["TASK-ID-1", "TASK-ID-2"],
   "file_domain": ["src/auth/", "tests/auth/"],
+  "shared_file_mods": ["pom.xml: add redis dependency"],
+  "flyway_version": 4,
   "branch": "feature/TASK-20260426-001",
   "output_path": "outputs/{TS}_{PID}/design/auth_TECH-SPEC.md"
 }
@@ -160,6 +174,10 @@ Tasks on the shared list use this structure:
 **File domain isolation is mandatory for concurrent tasks** — no two in-progress tasks may share the same `file_domain` entries.
 
 All inter-agent messages must follow `.claude/messaging/PROTOCOL.md`.
+
+Shared file edits must be serialized. If multiple agents need the same shared file, pm-agent chooses one owner and adds `depends_on` edges for all other tasks.
+
+Flyway versions are allocated by pm-agent in the task list. dba-agent must use the assigned `flyway_version`.
 
 ---
 
@@ -204,3 +222,43 @@ CONTAINER:        Docker + Kubernetes
 ❌ Skipping the human decision gate when triggered
 ❌ db-agent making schema changes without Flyway migrations
 ```
+
+---
+
+## 11. Initialization Checklist
+
+Before starting the first Agent Team, verify:
+
+- [ ] `PROJECT_ID` is filled and matches the repository or service name
+- [ ] `TECH_STACK` lists major frameworks and versions
+- [ ] `REPO_URL` is a real repository URL
+- [ ] `MAIN_BRANCH` matches the actual main branch (`main` or `master`)
+
+Validation command:
+
+```bash
+grep -E "\{your-|your-" CLAUDE.md
+```
+
+If this command prints any line, placeholders remain and must be replaced before running the team.
+
+## 12. Operational Limits
+
+```yaml
+MAX_CONCURRENT_AGENTS: 4
+TASK_TIMEOUTS:
+  design: 4h
+  implement: 8h
+  fix: 8h
+  refactor: 8h
+  test: 4h
+  review: 2h
+  security: 2h
+  deploy: 4h
+  docs: 4h
+```
+
+Rollback policy:
+- Prefer forward fixes and `git revert`.
+- Do not use destructive reset/delete/drop operations without explicit human approval.
+- For Flyway mistakes, create a new corrective migration rather than editing an already applied migration.

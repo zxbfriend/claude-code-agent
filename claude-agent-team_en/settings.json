@@ -5,8 +5,11 @@
   "permissions": {
     "allow": [
       "Bash(git checkout -b:*)",
+      "Bash(git checkout:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull origin:*)",
       "Bash(git branch:*)",
       "Bash(git status:*)",
       "Bash(git log:*)",

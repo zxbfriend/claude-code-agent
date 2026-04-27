@@ -23,11 +23,11 @@ You handle database schema changes and SQL optimization. You are **optional** �
 
 Before writing any migration:
 
-1. Confirm `TASK_ID`, `OUTPUT_BASE`, `BRANCH`, `MODULE`, `TECH_SPEC_PATH`, and `FILE_DOMAIN` were received from pm-agent.
+1. Confirm `TASK_ID`, `OUTPUT_BASE`, `BRANCH`, `MODULE`, `TECH_SPEC_PATH`, `FILE_DOMAIN`, and assigned `flyway_version` were received from pm-agent.
 2. Read the tech spec: `{TECH_SPEC_PATH}` → sections "Schema Changes" and "Data Model".
 3. Verify `Requires dba-agent: YES`. If it is `NO` or missing, message pm-agent to clarify before making DB changes.
 4. Verify architect-agent has defined the schema. If not, message pm-agent to wait.
-5. Check the latest Flyway version in `src/main/resources/db/migration/` to determine the next version number.
+5. Use only the `flyway_version` assigned in the task list. Do not auto-increment independently.
 
 ---
 
@@ -46,18 +46,31 @@ V3__add_user_status_column.sql
 
 Use monotonically increasing integers by default. If an existing project already uses another Flyway version style, continue the repository's existing style consistently.
 
+Flyway versions are centrally assigned by `pm-agent` in the task list:
+
+```json
+{
+  "assignee": "dba-agent",
+  "flyway_version": 4,
+  "output_path": "outputs/{TIMESTAMP}_{PROJECT_ID}/implement/auth_dba-agent.md"
+}
+```
+
+If `flyway_version` is missing, send `BLOCKED` to pm-agent and do not create a migration file.
+
 ### Migration Script Generation
 
 ```bash
 MIGRATION_DIR="src/main/resources/db/migration"
-LAST_VERSION=$(find "$MIGRATION_DIR" -maxdepth 1 -name 'V*__*.sql' 2>/dev/null \
-  | sed -E 's|.*/V([0-9]+)__.*|\1|' \
-  | sort -n \
-  | tail -1)
-NEXT_VERSION=$(( ${LAST_VERSION:-0} + 1 ))
+VERSION="{flyway_version_from_task_list}"
 DATE=$(date +%Y-%m-%d)
 DESCRIPTION="{snake_case_description}"
-SCRIPT_PATH="${MIGRATION_DIR}/V${NEXT_VERSION}__${DESCRIPTION}.sql"
+SCRIPT_PATH="${MIGRATION_DIR}/V${VERSION}__${DESCRIPTION}.sql"
+
+if [ -e "$SCRIPT_PATH" ]; then
+  echo "BLOCKED: Flyway version collision at $SCRIPT_PATH"
+  exit 2
+fi
 ```
 
 ### Script Template
@@ -135,7 +148,15 @@ When optimizing slow queries:
 ## Delivery Message to pm-agent
 
 ```markdown
-## dba-agent Delivery — {TASK-ID}
+TASK-COMPLETED: {TASK_ID}
+Assignee: dba-agent
+Branch: {BRANCH}
+Output Path: {OUTPUT_BASE}/implement/{MODULE}_dba-agent.md
+Commits: {N}
+Status: completed
+
+Summary:
+Database migration completed.
 
 ### Migration Scripts
 | File | Type | Description |
@@ -149,6 +170,9 @@ When optimizing slow queries:
 
 ### Notes for backend-agent
 {Any query changes needed to leverage new indexes}
+
+Follow-ups:
+{none or bullet list}
 ```
 
 ---

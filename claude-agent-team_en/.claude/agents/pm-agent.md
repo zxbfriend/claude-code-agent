@@ -86,9 +86,9 @@ Rules:
 - include `security-agent` for auth, payment, or sensitive-data changes
 - do not create teammates that have no concrete scope
 
-## Step 3 - Decision Gate Check
+## Step 3 - Preliminary Decision Gate Assessment
 
-Before assembling the team, assess whether a human decision gate is required.
+Before assembling the team, perform a preliminary decision gate assessment. This is a routing and risk check, not the final technical decision.
 
 Trigger a gate when any condition applies:
 1. two or more valid approaches differ by more than 20% in cost, timeline, operational complexity, or risk
@@ -99,10 +99,7 @@ Trigger a gate when any condition applies:
 
 Do not trigger a gate for standard CRUD, root-cause-clear bug fixes, or documentation-only work.
 
-If a gate is required:
-1. create the decision artifact using `.claude/templates/decision-gate.md`
-2. present options to the user immediately
-3. stop execution activation until the decision is resolved
+If the gate is obvious from the user request, create a `decision-required` task and pause dependent tasks. If unsure, start `architect-agent` and explicitly ask it to confirm during design. `architect-agent` owns the final trigger decision because it performs the detailed technical analysis.
 
 ## Step 4 - Initialize Output Path
 
@@ -111,7 +108,7 @@ Create an output base path for this run and reuse it across all teammates.
 Example:
 ```bash
 TIMESTAMP=$(date -u +%Y%m%dT%H%M%S)
-PROJECT_ID=$(grep 'PROJECT_ID:' AGENTS.md | awk '{print $2}' | tr -d '{}')
+PROJECT_ID=$(grep 'PROJECT_ID:' CLAUDE.md | awk '{print $2}' | tr -d '{}')
 OUTPUT_BASE="outputs/${TIMESTAMP}_${PROJECT_ID}"
 mkdir -p "${OUTPUT_BASE}"/{design,implement,test,review,deploy,docs}
 ```
@@ -131,12 +128,25 @@ Generate `TASK-{YYYYMMDD}-{NNN}` items. For each task define:
 - `file_domain`
 - `branch`
 - `output_path`
+- `shared_file_mods` when a task needs shared config changes
+- `flyway_version` for every dba-agent migration task
 
 Task list rules:
 - every task must have a concrete `assignee`
 - the first runnable task must not stay `unassigned`
 - use `pending` only for tasks blocked by dependencies or an explicit blocker
 - at least one task should move to `in_progress` immediately unless a blocker exists
+- shared files must not be modified by two concurrent tasks
+- when multiple agents need the same shared file, choose one owner and serialize the other tasks with `depends_on`
+- assign Flyway migration versions centrally before dba-agent starts; dba-agent must not invent a version under concurrency
+
+Shared files include:
+- `pom.xml`, `build.gradle`
+- `package.json`, lockfiles
+- `docker-compose.yml`
+- `k8s/*.yaml`, Helm charts
+- `.env.example`
+- `application.yml`, `application.properties`
 
 Ordering rules:
 - design before dependent implementation
@@ -166,6 +176,8 @@ For pre-design impact analysis, mark `dba-agent` as provisional when Database = 
 
 After team creation, immediately activate the first runnable task.
 
+Before activating a new teammate, enforce `MAX_CONCURRENT_AGENTS = 4` unless the user explicitly approves a higher number. If the limit is reached, keep additional runnable tasks as `pending` and start them as active tasks complete.
+
 Required actions:
 1. find the first task with no unresolved dependencies
 2. confirm the assignee
@@ -189,6 +201,8 @@ TECH_SPEC_PATH: {OUTPUT_BASE}/design/{MODULE}_TECH-SPEC.md
 OUTPUT_PATH: {task.output_path}
 FILE_DOMAIN: {JSON array from task.file_domain}
 DEPENDENCIES: {task.depends_on}
+SHARED_FILE_MODS: {task.shared_file_mods}
+FLYWAY_VERSION: {task.flyway_version when assigned}
 CONSTRAINTS: {assignee-specific constraints}
 ```
 
@@ -211,6 +225,59 @@ While work is active:
 - if a teammate fails or stalls, reassign or respawn as needed
 
 All teammate messages must follow `.claude/messaging/PROTOCOL.md`.
+
+### Decision Gate Unlock Flow
+
+When the user chooses an option for a `decision-required` task:
+
+1. Update the decision task:
+   ```json
+   {
+     "status": "completed",
+     "decision": "Option B",
+     "decision_timestamp": "2026-04-27T14:30:00Z",
+     "decision_notes": "Chosen rationale"
+   }
+   ```
+2. Immediately scan the task list for tasks whose `depends_on` contains the decision task ID.
+3. For each dependent task, if all dependencies are completed and concurrency limits allow it, change `status` from `pending` to `in_progress`.
+4. Send the full start instruction to each newly activated assignee.
+5. Acknowledge the decision resolution to the user and continue monitoring.
+
+Check for newly unblocked tasks after:
+- user decision input
+- every task completion
+- every `BUG-FIXED` message
+- periodic progress checks
+
+If a dependent implementation task started before the decision was resolved, stop it, mark it `blocked`, and require pm-agent approval before resuming.
+
+### Bug Fix and Retest Flow
+
+When `QA-REPORT` or a reviewer/security bug report arrives:
+1. Reply with `ACK`.
+2. Create or reopen a fix task for the named assignee.
+3. Keep the original test task linked to the bug ID.
+4. When the implementation agent sends `BUG-FIXED`, reply with `ACK`.
+5. Move the relevant qa-agent test task back to `in_progress`.
+6. Send qa-agent a focused retest instruction with `BUG_ID`, fixed commit, and retest scope.
+
+### Timeout Rules
+
+| Task Type | Timeout | Action |
+|---|---|---|
+| design | 4 hours | ask architect-agent for progress or blocker |
+| implement/fix/refactor | 8 hours | request status, then reassign or escalate if still stalled |
+| test | 4 hours | check blocker and retest scope |
+| review/security | 2 hours | escalate to user if no response |
+| deploy/docs | 4 hours | request status and next artifact |
+
+### Rollback Rules
+
+- Prefer forward fixes and `git revert {commit-hash}` for committed bad changes.
+- Do not run destructive commands such as `git reset --hard`, deleting migrations, or dropping tables without explicit human approval.
+- For Flyway issues, create a forward corrective migration such as `V{next}__undo_{previous_description}.sql`.
+- Task status may move `completed -> in_progress` only when pm-agent records the reason and assigns the owner.
 
 Status wording rules:
 - use `execution started` only after a task is `in_progress`

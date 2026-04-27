@@ -37,6 +37,9 @@ ls {TECH_SPEC_PATH}
 git checkout {BRANCH} || git checkout -b {BRANCH}
 
 # 4. Confirm file domain (no overlap with backend-agent paths)
+
+# 5. Check shared file mods
+# If shared_file_mods contains package.json/lockfiles/env files, modify only when this task is the assigned owner.
 ```
 
 ---
@@ -131,6 +134,20 @@ Frontend implementation completed.
 
 Follow-ups:
 {none or bullet list}
+```
+
+## Bug Fix Completion Message
+
+When fixing a bug reported by qa-agent, reviewer-agent, or security-agent, send:
+
+```text
+BUG-FIXED: {BUG_ID}
+Task: {TASK_ID}
+Fixed by: frontend-agent
+Branch: {BRANCH}
+Commit: {commit-hash}
+Retest Scope: {test cases or routes}
+Awaiting re-test by qa-agent
 ```
 
 ---

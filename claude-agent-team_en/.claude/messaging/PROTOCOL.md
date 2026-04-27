@@ -44,6 +44,35 @@ Reason:
 {why this must pause for human choice}
 ```
 
+## Architecture Plan Review
+
+Used by `architect-agent` when plan approval is required before finalizing a tech spec.
+
+```text
+ARCH-PLAN-REVIEW: {TASK_ID}
+Status: PENDING_APPROVAL
+Stage: draft_design
+Artifact: {OUTPUT_BASE}/design/{MODULE}_TECH-SPEC.md (draft)
+Scope: backend | frontend | dba | devops | security
+External Dependencies: yes | no; {list if yes}
+
+Key Decisions Made:
+- {decision}
+- {decision}
+
+Awaiting approval before finalizing.
+```
+
+`pm-agent` replies:
+
+```text
+ARCH-PLAN-APPROVED: {TASK_ID}
+Decision: APPROVED | APPROVED_WITH_NOTES | REQUIRES_REVISION
+Notes: {feedback}
+```
+
+`architect-agent` may write the final spec only after receiving `APPROVED` or `APPROVED_WITH_NOTES`.
+
 ## Blocker
 
 Used by any teammate that cannot continue.
@@ -54,6 +83,20 @@ Assignee: {agent-name}
 Reason: {specific blocker}
 Needed From: pm-agent | architect-agent | backend-agent | frontend-agent | dba-agent | user
 Blocking Since: {timestamp}
+```
+
+## Bug Fixed
+
+Used by an implementation agent after fixing a bug previously reported through `QA-REPORT`.
+
+```text
+BUG-FIXED: {BUG_ID}
+Task: {TASK_ID}
+Fixed by: {agent-name}
+Branch: {branch}
+Commit: {commit-hash}
+Retest Scope: {test cases or endpoints}
+Awaiting re-test by qa-agent
 ```
 
 ## Task Completion
@@ -73,4 +116,22 @@ Summary:
 
 Follow-ups:
 {none or bullet list}
+```
+
+## Acknowledgement
+
+`pm-agent` must acknowledge every `QA-REPORT`, `BUG-FIXED`, `BLOCKED`, `DECISION-REQUIRED`, and `ARCH-PLAN-REVIEW` message.
+
+```text
+ACK: {MESSAGE_TYPE}:{TASK_ID}
+Timestamp: {UTC timestamp}
+Action: {next step}
+```
+
+Example:
+
+```text
+ACK: QA-REPORT:TASK-20260427-004
+Timestamp: 2026-04-27T14:35:00Z
+Action: Routing BUG-20260427-001 to backend-agent for fix
 ```

@@ -14,6 +14,7 @@ OUTPUT_BASE: outputs/{TIMESTAMP}_{PROJECT_ID}
 BRANCH: {feature|fix|refactor}/TASK-{YYYYMMDD}-{NNN}
 MODULE: {module-name}
 TASK_LIST_PATH: {OUTPUT_BASE}/TASK-LIST.md
+MAX_CONCURRENT_AGENTS: 4
 ```
 
 ## Derived Paths
@@ -43,6 +44,8 @@ Every direct start instruction from `pm-agent` to a teammate must include:
 
 - the required context package above
 - the task's `file_domain` JSON array
+- the task's `shared_file_mods` array
+- the assigned `flyway_version` for dba-agent migration tasks
 - the task's `output_path`
 - dependencies and blocking decisions
 - constraints specific to the assignee

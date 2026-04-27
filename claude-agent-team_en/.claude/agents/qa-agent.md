@@ -74,6 +74,28 @@ Message the bug to pm-agent for re-assignment. Do not contact implementing agent
 
 ---
 
+## Retest After Bug Fix
+
+When pm-agent sends a retest instruction after `BUG-FIXED`:
+
+1. Retest only the linked `BUG_ID` scope unless pm-agent requests broader regression.
+2. Re-run the linked test case and the smallest necessary adjacent regression checks.
+3. Record before/after evidence and the fixing commit.
+4. If fixed, update the test report and send `TASK-COMPLETED`.
+5. If not fixed, send another `QA-REPORT` with the same `BUG_ID` and updated evidence.
+
+Retest note format:
+
+```text
+Retest: {BUG_ID}
+Fixed Commit: {commit-hash}
+Linked Test: TC-{NNN}
+Result: PASS | FAIL
+Evidence: {path | request/response | screenshot/log}
+```
+
+---
+
 ## Test Report
 
 Write to: `{OUTPUT_BASE}/test/{MODULE}_TEST-REPORT.md`
