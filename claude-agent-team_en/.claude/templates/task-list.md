@@ -17,6 +17,8 @@ This file is created and maintained by `pm-agent`. It is the single source of tr
 - Created By: `pm-agent`
 - Output Base: `outputs/{TIMESTAMP}_{PROJECT_ID}/`
 - Branch: `{feature/fix/refactor}/TASK-{YYYYMMDD}-{NNN}`
+- Context Package: `.claude/config/VARIABLES.md`
+- Messaging Protocol: `.claude/messaging/PROTOCOL.md`
 
 ## Execution Snapshot
 
@@ -42,7 +44,13 @@ This file is created and maintained by `pm-agent`. It is the single source of tr
       "outputs/{TIMESTAMP}_{PROJECT_ID}/design/"
     ],
     "branch": "feature/TASK-20260427-001",
-    "output_path": "outputs/{TIMESTAMP}_{PROJECT_ID}/design/auth_TECH-SPEC.md"
+    "output_path": "outputs/{TIMESTAMP}_{PROJECT_ID}/design/auth_TECH-SPEC.md",
+    "context": {
+      "task_id": "TASK-20260427-001",
+      "output_base": "outputs/{TIMESTAMP}_{PROJECT_ID}",
+      "module": "auth",
+      "tech_spec_path": "outputs/{TIMESTAMP}_{PROJECT_ID}/design/auth_TECH-SPEC.md"
+    }
   }
 ]
 ```
@@ -54,4 +62,3 @@ This file is created and maintained by `pm-agent`. It is the single source of tr
 - [ ] At least one task is `in_progress`, or a blocker is recorded
 - [ ] User informed of the real execution state
 - [ ] Dependencies updated after each completion
-

@@ -26,15 +26,21 @@ You implement backend logic based on the architect-agent's tech spec. You own yo
 Before writing a single line of code:
 
 ```bash
-# 1. Verify tech spec exists
-ls {OUTPUT_BASE}/design/*TECH-SPEC.md
+# 1. Confirm context from pm-agent
+echo "TASK_ID={TASK_ID}"
+echo "OUTPUT_BASE={OUTPUT_BASE}"
+echo "BRANCH={BRANCH}"
+echo "FILE_DOMAIN={file_domain JSON array}"
 
-# 2. Create feature branch
-git checkout -b {type}/{TASK-ID}
+# 2. Verify tech spec exists
+ls {TECH_SPEC_PATH}
+
+# 3. Create or join feature branch
+git checkout {BRANCH} || git checkout -b {BRANCH}
 # e.g.: git checkout -b feature/TASK-20260426-001
 
-# 3. Confirm file domain
-# Read the task entry on the shared task list for file_domain
+# 4. Confirm file domain
+# Read FILE_DOMAIN from the pm-agent start instruction and task list.
 ```
 
 If no tech spec exists, message pm-agent: "Cannot begin — tech spec not available."
@@ -109,10 +115,15 @@ Agent: backend-agent
 ## Delivery Message to pm-agent
 
 ```markdown
-## backend-agent Delivery — {TASK-ID}
+TASK-COMPLETED: {TASK_ID}
+Assignee: backend-agent
+Branch: {BRANCH}
+Output Path: {OUTPUT_BASE}/implement/{MODULE}_backend-agent.md
+Commits: {N}
+Status: completed
 
-**Branch:** feature/{TASK-ID}
-**Commits:** {N}
+Summary:
+Backend implementation completed.
 
 ### Files Changed
 | Path | Type |
@@ -131,6 +142,9 @@ Agent: backend-agent
 
 ### Needs dba-agent
 {YES/NO — list any pending schema changes}
+
+Follow-ups:
+{none or bullet list}
 ```
 
 ---

@@ -24,14 +24,19 @@ You build UI based on the architect-agent's API spec. You own your assigned `fil
 ## Pre-Implementation Checklist
 
 ```bash
-# 1. Verify API spec
-ls {OUTPUT_BASE}/design/*TECH-SPEC.md
+# 1. Confirm context from pm-agent
+echo "TASK_ID={TASK_ID}"
+echo "OUTPUT_BASE={OUTPUT_BASE}"
+echo "BRANCH={BRANCH}"
+echo "FILE_DOMAIN={file_domain JSON array}"
 
-# 2. Join the feature branch (same branch as backend-agent)
-git checkout {branch-from-task-list}
-# If branch doesn't exist yet: git checkout -b {type}/{TASK-ID}
+# 2. Verify API spec
+ls {TECH_SPEC_PATH}
 
-# 3. Confirm file domain (no overlap with backend-agent paths)
+# 3. Join the feature branch (same branch as backend-agent)
+git checkout {BRANCH} || git checkout -b {BRANCH}
+
+# 4. Confirm file domain (no overlap with backend-agent paths)
 ```
 
 ---
@@ -98,10 +103,15 @@ Agent: frontend-agent
 ## Delivery Message to pm-agent
 
 ```markdown
-## frontend-agent Delivery — {TASK-ID}
+TASK-COMPLETED: {TASK_ID}
+Assignee: frontend-agent
+Branch: {BRANCH}
+Output Path: {OUTPUT_BASE}/implement/{MODULE}_frontend-agent.md
+Commits: {N}
+Status: completed
 
-**Branch:** {branch}
-**Commits:** {N}
+Summary:
+Frontend implementation completed.
 
 ### Files Changed
 | Path | Type |
@@ -118,6 +128,9 @@ Agent: frontend-agent
 | Endpoint | Status |
 |---|---|
 | POST /api/v1/auth/login | integrated |
+
+Follow-ups:
+{none or bullet list}
 ```
 
 ---

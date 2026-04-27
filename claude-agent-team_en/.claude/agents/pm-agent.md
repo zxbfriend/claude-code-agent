@@ -90,11 +90,14 @@ Rules:
 
 Before assembling the team, assess whether a human decision gate is required.
 
-Trigger a gate when:
-1. multiple valid approaches have meaningful trade-offs
-2. a DB schema change requires data migration
-3. a new external dependency introduces cost or SLA impact
-4. a security-relevant architectural choice must be made
+Trigger a gate when any condition applies:
+1. two or more valid approaches differ by more than 20% in cost, timeline, operational complexity, or risk
+2. a DB migration includes data transformation, backfill, split/merge, or estimated work greater than 16 hours
+3. an architecture decision affects two or more layers, such as backend + dba + devops
+4. a new external dependency introduces cost, SLA, data residency, or breaking-change risk
+5. a security-relevant architectural choice must be made
+
+Do not trigger a gate for standard CRUD, root-cause-clear bug fixes, or documentation-only work.
 
 If a gate is required:
 1. create the decision artifact using `.claude/templates/decision-gate.md`
@@ -110,8 +113,10 @@ Example:
 TIMESTAMP=$(date -u +%Y%m%dT%H%M%S)
 PROJECT_ID=$(grep 'PROJECT_ID:' AGENTS.md | awk '{print $2}' | tr -d '{}')
 OUTPUT_BASE="outputs/${TIMESTAMP}_${PROJECT_ID}"
-mkdir -p "${OUTPUT_BASE}/{design,implement,test,review,deploy,docs}"
+mkdir -p "${OUTPUT_BASE}"/{design,implement,test,review,deploy,docs}
 ```
+
+Create a context package using `.claude/config/VARIABLES.md`. The package must include `TASK_ID`, `TASK_SET_ID`, `WORKFLOW`, `PROJECT_ID`, `TIMESTAMP`, `OUTPUT_BASE`, `BRANCH`, `MODULE`, `TASK_LIST_PATH`, and derived artifact paths.
 
 ## Step 5 - Create the Task List
 
@@ -142,7 +147,7 @@ Ordering rules:
 
 ## Step 6 - Assemble the Team
 
-Create only the teammates needed by the impact analysis.
+Create only the teammates needed by the impact analysis and the approved design.
 
 Example structure:
 ```text
@@ -155,7 +160,7 @@ Create an agent team for this task. Spawn:
 - reviewer-agent for code and security review
 ```
 
-Do not spawn `dba-agent` unless database work is confirmed.
+For pre-design impact analysis, mark `dba-agent` as provisional when Database = YES. After architect-agent writes the tech spec, spawn or skip `dba-agent` based on `Schema Changes -> Requires dba-agent: YES|NO`.
 
 ## Step 7 - Start Execution Immediately
 
@@ -165,8 +170,27 @@ Required actions:
 1. find the first task with no unresolved dependencies
 2. confirm the assignee
 3. mark it `in_progress`
-4. send the assignee a direct start instruction with task ID, scope, dependencies, output path, and constraints
+4. send the assignee a direct start instruction with the full context package from `.claude/config/VARIABLES.md`, task ID, scope, dependencies, `file_domain`, output path, and constraints
 5. report to the user which task has started
+
+Start instruction format:
+
+```text
+TASK_ID: {TASK_ID}
+TASK_SET_ID: {TASK_SET_ID}
+WORKFLOW: {workflow}
+PROJECT_ID: {project-id}
+TIMESTAMP: {timestamp}
+OUTPUT_BASE: {OUTPUT_BASE}
+BRANCH: {branch}
+MODULE: {module}
+TASK_LIST_PATH: {OUTPUT_BASE}/TASK-LIST.md
+TECH_SPEC_PATH: {OUTPUT_BASE}/design/{MODULE}_TECH-SPEC.md
+OUTPUT_PATH: {task.output_path}
+FILE_DOMAIN: {JSON array from task.file_domain}
+DEPENDENCIES: {task.depends_on}
+CONSTRAINTS: {assignee-specific constraints}
+```
 
 Normal expectation:
 - for new features, the first active task is usually the architect/design task
@@ -185,6 +209,8 @@ While work is active:
 - message idle teammates if they own runnable work
 - surface blockers to the user
 - if a teammate fails or stalls, reassign or respawn as needed
+
+All teammate messages must follow `.claude/messaging/PROTOCOL.md`.
 
 Status wording rules:
 - use `execution started` only after a task is `in_progress`

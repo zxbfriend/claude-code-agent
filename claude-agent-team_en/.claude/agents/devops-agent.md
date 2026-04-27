@@ -83,8 +83,18 @@ readinessProbe:
 
 ## Delivery Message
 
-```markdown
-## devops-agent Delivery — {TASK-ID}
+Use `.claude/messaging/PROTOCOL.md`.
+
+```text
+TASK-COMPLETED: {TASK_ID}
+Assignee: devops-agent
+Branch: {BRANCH}
+Output Path: {OUTPUT_BASE}/deploy/{MODULE}_DEPLOY-PLAN.md
+Commits: {N}
+Status: completed
+
+Summary:
+Deployment changes completed.
 
 ### Files Changed
 | File | Change |
@@ -102,4 +112,7 @@ readinessProbe:
 - [ ] Pipeline runs in dev environment
 - [ ] Health check endpoints respond
 - [ ] Logs flowing to collector
+
+Follow-ups:
+{none or list}
 ```

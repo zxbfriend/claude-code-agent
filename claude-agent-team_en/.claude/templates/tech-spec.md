@@ -40,7 +40,17 @@ Describe the feature or change in one short paragraph.
 
 ## Data Model
 
-Use this section only if database changes are needed.
+This section is required. If no database work is needed, set `Requires dba-agent` to `NO` and mark `None`.
+
+## Schema Changes
+
+- **Requires dba-agent:** `YES | NO`
+- **Changes:**
+  - [ ] New table
+  - [ ] New column
+  - [ ] Index optimization
+  - [ ] Data migration
+  - [ ] None
 
 ### Table: `{table_name}`
 
@@ -56,9 +66,23 @@ Use this section only if database changes are needed.
 
 ## Module Boundaries
 
-- `backend-agent` owns: `{path}`
-- `frontend-agent` owns: `{path}`
-- `dba-agent` owns: `{path if needed}`
+```json
+{
+  "backend-agent": {
+    "file_domain": ["src/main/java/com/example/{module}/"],
+    "type": "java"
+  },
+  "frontend-agent": {
+    "file_domain": ["src/frontend/src/pages/{module}/"],
+    "type": "javascript"
+  },
+  "dba-agent": {
+    "file_domain": ["src/main/resources/db/migration/"],
+    "type": "sql",
+    "required": false
+  }
+}
+```
 
 ## Technical Decisions
 
@@ -83,4 +107,3 @@ Use this section only if database changes are needed.
 ### dba-agent
 
 - `{guidance or omit if not needed}`
-

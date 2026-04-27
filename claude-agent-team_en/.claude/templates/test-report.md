@@ -24,11 +24,35 @@
 |---|---|---|---|---|
 | TC-001 | Example scenario | Example result | Example result | PASS |
 
-## Defects
+## Defects Found
 
-- `{defect or "None"}`
+### Critical (Block Review)
+
+- `{BUG-ID or None}`
+  - Assignee: `{backend-agent | frontend-agent | dba-agent | devops-agent}`
+  - Evidence: `{path | request/response | screenshot | log excerpt}`
+  - Fix ETA: `{estimate}`
+
+### High (Fix Before Release)
+
+- `{BUG-ID or None}`
+
+### Medium (Track Follow-up)
+
+- `{BUG-ID or None}`
+
+### Low (Optional Cleanup)
+
+- `{BUG-ID or None}`
+
+### Total
+
+- Critical: `{N}`
+- High: `{N}`
+- Medium: `{N}`
+- Low: `{N}`
+- **Status:** `{PASS | BLOCKED until Critical bugs fixed | PASS_WITH_KNOWN_ISSUES}`
 
 ## Notes
 
 - `{extra validation notes}`
-

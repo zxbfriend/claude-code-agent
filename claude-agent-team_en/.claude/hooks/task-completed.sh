@@ -15,10 +15,10 @@ TASK_TYPE=$(echo "$TASK_JSON" | python3 -c "import json,sys; print(json.load(sys
 
 # For implement/fix/refactor tasks, verify they were done on a feature branch (not main/master)
 if [[ "$TASK_TYPE" =~ ^(implement|fix|refactor)$ ]]; then
-  CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "")
+  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
   
-  if [[ -z "$CURRENT_BRANCH" ]]; then
-    echo "ERROR: Could not determine current git branch."
+  if [[ -z "$CURRENT_BRANCH" || "$CURRENT_BRANCH" == "HEAD" ]]; then
+    echo "ERROR: Could not determine current git branch, or repository is in detached HEAD state."
     echo "Implementation tasks must be completed on a feature branch (not detached HEAD)."
     exit 2
   fi

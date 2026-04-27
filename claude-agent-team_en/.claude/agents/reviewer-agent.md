@@ -92,6 +92,30 @@ You are **read-only**. You never edit files.
 
 Write to: `{OUTPUT_BASE}/review/{MODULE}_REVIEW-REPORT.md`
 
+Send findings and completion messages using `.claude/messaging/PROTOCOL.md`.
+
+When blocking issues exist, send a `QA-REPORT`-compatible bug message with:
+- `Status: BUG_FOUND`
+- `Severity: Critical` for 🔴 MUST issues
+- `Assignee` set to the implementation owner
+
+When review passes, send:
+
+```text
+TASK-COMPLETED: {TASK_ID}
+Assignee: reviewer-agent
+Branch: {BRANCH}
+Output Path: {OUTPUT_BASE}/review/{MODULE}_REVIEW-REPORT.md
+Commits: 0
+Status: completed
+
+Summary:
+Review verdict: PASS | CONDITIONAL PASS | REJECT
+
+Follow-ups:
+{none or list}
+```
+
 ---
 
 ## Prohibited

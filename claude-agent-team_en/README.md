@@ -37,7 +37,7 @@ Agent 团队（并行协作）
 
 ## 📦 交付内容概览
 
-本方案由 29 个文件组成，约 8,000 行配置、流程、模板和示例内容：
+本方案由 31 个文件组成，约 8,000 行配置、流程、模板和示例内容：
 
 ```
 agent-teams/
@@ -45,6 +45,10 @@ agent-teams/
 │   ├── CLAUDE.md                 项目总纲，所有 agent 读取
 │   ├── settings.json             Claude Code 启用 Agent Teams
 │   └── README.md                 完整使用指南
+│
+├── 🧭 变量与通信规范
+│   ├── .claude/config/VARIABLES.md      上下文变量与输出路径
+│   └── .claude/messaging/PROTOCOL.md    Agent 消息格式
 │
 ├── 🤖 10 个 Agent 定义（.claude/agents/）
 │   ├── pm-agent.md               主会话、任务调度、汇总交付
@@ -179,6 +183,12 @@ your-project/
 │   │   ├── review-report.md      ← 代码审查报告模板
 │   │   └── task-list.md          ← 共享任务列表模板
 │   │
+│   ├── config/
+│   │   └── VARIABLES.md          ← 变量与输出路径约定
+│   │
+│   ├── messaging/
+│   │   └── PROTOCOL.md           ← Agent 消息格式
+│   │
 │   └── hooks/
 │       ├── teammate-idle.sh      ← 检查待办任务，阻止空闲
 │       ├── task-created.sh       ← 验证任务字段
@@ -189,9 +199,9 @@ your-project/
 │       ├── design/
 │       │   └── auth_TECH-SPEC.md
 │       ├── implement/
-│       │   ├── auth_backend.md
-│       │   ├── auth_frontend.md
-│       │   └── auth_dba.md
+│       │   ├── auth_backend-agent.md
+│       │   ├── auth_frontend-agent.md
+│       │   └── auth_dba-agent.md
 │       ├── test/
 │       │   └── auth_TEST-REPORT.md
 │       ├── review/
@@ -473,7 +483,7 @@ architect-agent（design 任务）
 [并行] backend + frontend + dba（implement 任务）
     ├─ backend-agent：AuthController + AuthService + 单元测试
     ├─ frontend-agent：LoginPage + 状态管理 + API 集成
-    ├─ dba-agent：Flyway 迁移脚本（V1.0.1__create_user_table.sql）
+    ├─ dba-agent：Flyway 迁移脚本（V1__create_user_table.sql）
     └─ 状态：都 completed，分别提交到 feature/TASK-xxx
     ↓
 qa-agent（test 任务）

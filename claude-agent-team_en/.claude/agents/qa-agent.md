@@ -46,21 +46,28 @@ You are the quality gate before code review. You test what was built, not what w
 
 ## Bug Report Format
 
-```markdown
-## BUG-{YYYYMMDD}-{NNN}
+Use `.claude/messaging/PROTOCOL.md` exactly:
 
-- **Severity:** Critical / High / Medium / Low
-- **Assignee:** backend-agent / frontend-agent / dba-agent
-- **Linked test:** TC-{NNN}
+```text
+QA-REPORT: {TASK_ID}
+Status: BUG_FOUND
+Severity: Critical | High | Medium | Low
+Assignee: backend-agent | frontend-agent | dba-agent | devops-agent
+Bug ID: BUG-{YYYYMMDD}-{NNN}
+Linked Test: TC-{NNN}
+Evidence: {request/response/screenshot/log}
 
-**Description:** {one sentence}
+Description:
+{one sentence}
 
-**Steps to reproduce:**
+Steps:
 1. {step}
 
-**Expected:** {what should happen}
-**Actual:** {what happened}
-**Evidence:** {request/response/screenshot}
+Expected:
+{what should happen}
+
+Actual:
+{what happened}
 ```
 
 Message the bug to pm-agent for re-assignment. Do not contact implementing agents directly.

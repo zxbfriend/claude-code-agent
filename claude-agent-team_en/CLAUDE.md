@@ -64,6 +64,8 @@ pm-agent will:
 
 ## 4. Output Artifact Convention
 
+`pm-agent` must initialize and pass the shared context package from `.claude/config/VARIABLES.md` to every teammate before work starts. Teammates must not guess `OUTPUT_BASE`, `BRANCH`, `MODULE`, or derived artifact paths.
+
 All agents MUST write output files to this path:
 
 ```
@@ -116,11 +118,14 @@ Never commit directly to `main` or `master`.
 
 ## 6. Human Decision Gate Protocol
 
-**Trigger conditions — architect-agent MUST pause for human confirmation when:**
-- Two or more technically valid approaches exist with meaningful trade-offs
-- A technology choice has cost or timeline implications > 20%
-- A DB schema change would require data migration in production
+**Trigger conditions — architect-agent MUST pause for human confirmation when any condition applies:**
+- Two or more technically valid approaches exist and cost, timeline, operational complexity, or risk differs by more than 20%
+- DB migration includes data transformation, backfill, split/merge, or estimated work greater than 16 hours
+- Architecture affects two or more layers, such as backend + dba + devops
+- A new external dependency introduces cost, SLA, data residency, or breaking-change risk
 - A security-relevant architectural decision needs to be made
+
+Do not trigger a gate for standard CRUD, root-cause-clear bug fixes, or documentation-only work.
 
 **Mechanism:**
 1. architect-agent creates a `decision-required` task on the shared task list
@@ -153,6 +158,8 @@ Tasks on the shared list use this structure:
 ```
 
 **File domain isolation is mandatory for concurrent tasks** — no two in-progress tasks may share the same `file_domain` entries.
+
+All inter-agent messages must follow `.claude/messaging/PROTOCOL.md`.
 
 ---
 

@@ -34,31 +34,27 @@ When running as a teammate with plan approval required:
 
 ## Decision Gate Check
 
-Before writing any spec, assess whether multiple valid approaches exist. If yes, DO NOT pick one — instead create a decision-required task on the shared task list with this format:
+Before writing any spec, assess whether a decision gate is required. Trigger a gate when any condition applies:
 
-```markdown
-## Decision Required: {Topic}
+1. Two or more valid approaches differ by more than 20% in cost, timeline, operational complexity, or risk.
+2. DB migration includes data transformation, backfill, split/merge, or estimated work greater than 16 hours.
+3. Architecture affects two or more layers, such as backend + dba + devops.
+4. A new external dependency introduces cost, SLA, data residency, or breaking-change risk.
+5. A security-relevant architectural choice must be made.
 
-**Context:** {why this decision matters}
+Do not trigger a gate for standard CRUD, root-cause-clear bug fixes, or documentation-only work.
 
-### Option A — {Name}
-- **Description:** {what it is}
-- **Pros:** {advantages}
-- **Cons:** {disadvantages}
-- **Best when:** {ideal use case}
-- **Estimated effort:** {relative}
+If a gate is required, DO NOT pick one — instead create a decision-required task on the shared task list and send this message using `.claude/messaging/PROTOCOL.md`:
 
-### Option B — {Name}
-- **Description:** {what it is}
-- **Pros:** {advantages}
-- **Cons:** {disadvantages}
-- **Best when:** {ideal use case}
-- **Estimated effort:** {relative}
+```text
+DECISION-REQUIRED: {TASK_ID}
+Topic: {short title}
+Blocking Tasks: {TASK_ID list}
+Decision Artifact: {OUTPUT_BASE}/design/{MODULE}_DECISION-GATE.md
+Recommendation: Option A | Option B | Option C
 
-### Recommendation
-{Your recommended option and reasoning, but defer to human}
-
-**Blocking tasks:** {list all implementation tasks that depend on this decision}
+Reason:
+{why this must pause for human choice}
 ```
 
 Send this to pm-agent via message. Do not proceed until the decision is resolved.
@@ -97,6 +93,16 @@ Use the template at `.claude/templates/tech-spec.md`.
 **2. Data Model** (only if DB changes needed — coordinate with dba-agent)
 
 ```
+## Schema Changes
+
+- **Requires dba-agent:** YES | NO
+- **Changes:**
+  - [ ] New table
+  - [ ] New column
+  - [ ] Index optimization
+  - [ ] Data migration
+  - [ ] None
+
 ## Table: {table_name}
 
 | Column | Type | Nullable | Default | Description |
@@ -114,10 +120,24 @@ Use the template at `.claude/templates/tech-spec.md`.
 **3. Module Boundaries**
 
 Define which source paths each implementing agent owns:
-```
-backend-agent owns:  src/main/java/com/example/auth/
-frontend-agent owns: src/frontend/src/pages/auth/
-dba-agent owns:      src/main/resources/db/migration/
+```json
+{
+  "module_boundaries": {
+    "backend-agent": {
+      "file_domain": ["src/main/java/com/example/auth/"],
+      "type": "java"
+    },
+    "frontend-agent": {
+      "file_domain": ["src/frontend/src/pages/auth/"],
+      "type": "javascript"
+    },
+    "dba-agent": {
+      "file_domain": ["src/main/resources/db/migration/"],
+      "type": "sql",
+      "required": true
+    }
+  }
+}
 ```
 
 **4. Key Technical Decisions**
@@ -153,6 +173,7 @@ dba-agent: [SKIP if no DB changes]
 ❌ Do not write Controller / Service / SQL code
 ❌ Do not change specs mid-implementation without pm-agent approval
 ❌ Do not include dba-agent guidance if no DB changes are needed
-✅ Always declare file_domain for each implementing agent
-✅ Always trigger decision gate when ≥2 valid approaches exist
+✅ Always declare file_domain as JSON arrays for each implementing agent
+✅ Always declare Schema Changes and Requires dba-agent: YES | NO
+✅ Always trigger decision gate when the defined criteria are met
 ```

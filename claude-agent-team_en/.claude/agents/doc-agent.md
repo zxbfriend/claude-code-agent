@@ -92,6 +92,23 @@ CHANGELOG.md (append to project root)
 README.md (update relevant sections)
 ```
 
+Send completion messages using `.claude/messaging/PROTOCOL.md`:
+
+```text
+TASK-COMPLETED: {TASK_ID}
+Assignee: doc-agent
+Branch: {BRANCH}
+Output Path: {OUTPUT_BASE}/docs/{MODULE}_API-DOCS.md
+Commits: {N}
+Status: completed
+
+Summary:
+Documentation updated.
+
+Follow-ups:
+{none or list}
+```
+
 ---
 
 ## Prohibited

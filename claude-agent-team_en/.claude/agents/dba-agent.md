@@ -23,9 +23,11 @@ You handle database schema changes and SQL optimization. You are **optional** �
 
 Before writing any migration:
 
-1. Read the tech spec: `{OUTPUT_BASE}/design/*TECH-SPEC.md` → section "Data Model"
-2. Verify architect-agent has defined the schema. If not, message pm-agent to wait.
-3. Check the latest Flyway version in `src/main/resources/db/migration/` to determine the next version number.
+1. Confirm `TASK_ID`, `OUTPUT_BASE`, `BRANCH`, `MODULE`, `TECH_SPEC_PATH`, and `FILE_DOMAIN` were received from pm-agent.
+2. Read the tech spec: `{TECH_SPEC_PATH}` → sections "Schema Changes" and "Data Model".
+3. Verify `Requires dba-agent: YES`. If it is `NO` or missing, message pm-agent to clarify before making DB changes.
+4. Verify architect-agent has defined the schema. If not, message pm-agent to wait.
+5. Check the latest Flyway version in `src/main/resources/db/migration/` to determine the next version number.
 
 ---
 
@@ -34,12 +36,28 @@ Before writing any migration:
 ### Naming
 
 ```
-V{major}.{minor}.{patch}__{description}.sql
+V{number}__{description}.sql
 
 Examples:
-V1.0.1__create_user_table.sql
-V1.0.2__add_login_log_table.sql
-V1.1.0__add_user_status_column.sql
+V1__create_user_table.sql
+V2__add_login_log_table.sql
+V3__add_user_status_column.sql
+```
+
+Use monotonically increasing integers by default. If an existing project already uses another Flyway version style, continue the repository's existing style consistently.
+
+### Migration Script Generation
+
+```bash
+MIGRATION_DIR="src/main/resources/db/migration"
+LAST_VERSION=$(find "$MIGRATION_DIR" -maxdepth 1 -name 'V*__*.sql' 2>/dev/null \
+  | sed -E 's|.*/V([0-9]+)__.*|\1|' \
+  | sort -n \
+  | tail -1)
+NEXT_VERSION=$(( ${LAST_VERSION:-0} + 1 ))
+DATE=$(date +%Y-%m-%d)
+DESCRIPTION="{snake_case_description}"
+SCRIPT_PATH="${MIGRATION_DIR}/V${NEXT_VERSION}__${DESCRIPTION}.sql"
 ```
 
 ### Script Template
@@ -122,7 +140,7 @@ When optimizing slow queries:
 ### Migration Scripts
 | File | Type | Description |
 |---|---|---|
-| V1.0.1__create_user_table.sql | DDL | New user table |
+| V1__create_user_table.sql | DDL | New user table |
 
 ### Index Changes
 | Table | Index | Columns | Type |

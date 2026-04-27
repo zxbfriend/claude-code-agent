@@ -90,9 +90,30 @@ A10 SSRF
 
 Write to: `{OUTPUT_BASE}/review/{MODULE}_SECURITY-REPORT.md`
 
+Send findings and completion messages using `.claude/messaging/PROTOCOL.md`.
+
+For Critical or High findings, send a `QA-REPORT`-compatible message with the implementation owner as `Assignee`.
+
 **Final conclusion:**
 ```
 🚨 BLOCKED — {N} Critical + {N} High findings. Delivery blocked.
 ⚠️ CONDITIONAL — No Critical. {N} High findings to fix this sprint.
 ✅ CLEAR — No Critical or High findings.
+```
+
+When the audit is complete, send:
+
+```text
+TASK-COMPLETED: {TASK_ID}
+Assignee: security-agent
+Branch: {BRANCH}
+Output Path: {OUTPUT_BASE}/review/{MODULE}_SECURITY-REPORT.md
+Commits: 0
+Status: completed
+
+Summary:
+Security verdict: BLOCKED | CONDITIONAL | CLEAR
+
+Follow-ups:
+{none or list}
 ```
