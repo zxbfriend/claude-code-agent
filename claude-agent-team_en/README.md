@@ -209,7 +209,7 @@ This prevents the team from stalling on plan approval for routine features.
 | Hook | File | Purpose |
 |---|---|---|
 | TaskCreated | `.claude/hooks/task-created.sh` | Validates `task_subject` (non-empty) and `task_id` (present); `teammate_name` intentionally not enforced (unassigned tasks are valid) |
-| TaskCompleted | `.claude/hooks/task-completed.sh` | Identifies coding tasks by teammate name (backend/frontend/dba/devops-agent) or subject keywords; blocks completion on main/master |
+| TaskCompleted | `.claude/hooks/task-completed.sh` | Identifies coding/documentation tasks by teammate name (backend/frontend/dba/devops/doc-agent) or subject keywords; blocks completion on main/master |
 | TeammateIdle | `.claude/hooks/teammate-idle.sh` | Reads stdin JSON for teammate_name; counts only claimable tasks (assignee match + all deps completed + not blocked) |
 
 ---

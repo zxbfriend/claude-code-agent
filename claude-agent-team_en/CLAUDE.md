@@ -229,7 +229,7 @@ Flyway versions are allocated by pm-agent in the task list. dba-agent must use t
 | Test pass | qa-agent | All P0 tests must pass before review |
 | Code review | reviewer-agent | Must pass before deploy |
 | Security scan | security-agent | Required for auth/payment/data-access changes |
-| No direct main commits | Hook | TaskCompleted hook rejects implementation on main |
+| No direct main commits | Hook | TaskCompleted hook rejects implementation and documentation tasks on main |
 
 ---
 
