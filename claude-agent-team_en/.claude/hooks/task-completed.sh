@@ -2,18 +2,26 @@
 # TaskCompleted Hook
 # Runs when a task is about to be marked complete.
 # Exit 0  → allow completion
-# Exit 2  → prevent completion, send STDOUT as feedback
+# Exit 2  → prevent completion; feedback written to stderr is returned to the model
 #
 # Official Claude Code input (via stdin, JSON):
-#   task_id          — system-assigned task identifier
+#   task_id          — system-assigned task identifier (NOT the custom TASK-YYYYMMDD-NNN)
 #   task_subject     — task title / subject line
 #   task_description — task description body
-#   teammate_name    — name of the completing teammate
+#   teammate_name    — name of the teammate completing the task (optional)
 #   team_name        — name of the current team
 #
-# NOTE: The official input does NOT include a 'type' field.
-# Branch protection heuristic: identify coding tasks by subject keywords,
-# then fall back to reading TASK-LIST.md if available.
+# Branch protection strategy:
+# The official task_id is a system ID that does not match the custom TASK-YYYYMMDD-NNN
+# IDs in TASK-LIST.md, so TASK-LIST lookup is unreliable and is NOT used.
+#
+# A coding task is identified when ANY of these is true:
+#   A) teammate_name is a known coding agent
+#      (backend-agent, frontend-agent, dba-agent, devops-agent, doc-agent)
+#   B) task_subject contains coding-task keywords (broad list covering all layers)
+#
+# doc-agent is included because documentation workflow requires commits to a feature
+# branch, consistent with the project-wide "no direct commits to main/master" rule.
 
 set -euo pipefail
 
@@ -23,36 +31,45 @@ fi
 
 HOOK_JSON=$(cat)
 
-# ── Parse official fields
 TASK_SUBJECT=$(echo "$HOOK_JSON" | python3 -c \
   "import json,sys; d=json.load(sys.stdin); print(d.get('task_subject',''))" 2>/dev/null || echo "")
-TASK_ID=$(echo "$HOOK_JSON" | python3 -c \
-  "import json,sys; d=json.load(sys.stdin); print(d.get('task_id',''))" 2>/dev/null || echo "")
+TEAMMATE_NAME=$(echo "$HOOK_JSON" | python3 -c \
+  "import json,sys; d=json.load(sys.stdin); print(d.get('teammate_name',''))" 2>/dev/null || echo "")
 
 # ── Determine if this is a coding task
-# Strategy 1: heuristic from task subject keywords
 IS_CODING_TASK=0
-LOWER_SUBJECT=$(echo "$TASK_SUBJECT" | tr '[:upper:]' '[:lower:]')
-for kw in "implement" "fix" "refactor" "backend" "frontend" "migration" "migrate" "bugfix" "bug fix"; do
-  if echo "$LOWER_SUBJECT" | grep -qF "$kw"; then
+
+# Strategy A: teammate is a known coding agent (most reliable)
+# doc-agent is included: documentation workflow requires feature branch commits
+CODING_AGENTS="backend-agent frontend-agent dba-agent devops-agent doc-agent"
+for agent in $CODING_AGENTS; do
+  if [[ "$TEAMMATE_NAME" == "$agent" ]]; then
     IS_CODING_TASK=1
     break
   fi
 done
 
-# Strategy 2: if TASK-LIST.md is available, look up the task type by task_id
-if [[ $IS_CODING_TASK -eq 0 && -n "$TASK_ID" ]]; then
-  TASK_LIST=$(find outputs -maxdepth 3 -name "TASK-LIST.md" 2>/dev/null | sort -r | head -1 || true)
-  if [[ -n "$TASK_LIST" && -f "$TASK_LIST" ]]; then
-    # Look for the task_id followed by implement/fix/refactor type in the JSON block
-    if grep -A5 "\"$TASK_ID\"" "$TASK_LIST" 2>/dev/null \
-        | grep -qE '"type"[[:space:]]*:[[:space:]]*"(implement|fix|refactor)"'; then
+# Strategy B: subject keyword heuristic (catches cases where teammate_name is absent/generic)
+if [[ $IS_CODING_TASK -eq 0 ]]; then
+  LOWER_SUBJECT=$(echo "$TASK_SUBJECT" | tr '[:upper:]' '[:lower:]')
+  CODING_KEYWORDS=(
+    "implement" "fix" "refactor" "migrate" "migration"
+    "backend" "frontend" "dba" "database" "schema"
+    "table" "column" "index" "flyway" "sql" "ddl"
+    "bugfix" "bug fix" "hotfix" "patch"
+    "controller" "service" "repository" "api" "endpoint"
+    "component" "page" "hook" "store" "reducer"
+    "docs" "documentation" "readme" "changelog" "api doc"
+  )
+  for kw in "${CODING_KEYWORDS[@]}"; do
+    if echo "$LOWER_SUBJECT" | grep -qE "$kw"; then
       IS_CODING_TASK=1
+      break
     fi
-  fi
+  done
 fi
 
-# ── Enforce feature branch rule only for coding tasks
+# ── Enforce feature branch rule for coding tasks
 if [[ $IS_CODING_TASK -eq 1 ]]; then
 
   if ! command -v git &>/dev/null; then
@@ -62,26 +79,26 @@ if [[ $IS_CODING_TASK -eq 1 ]]; then
   CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
 
   if [[ -z "$CURRENT_BRANCH" ]]; then
-    echo "ERROR: Could not determine current git branch."
-    echo "Ensure the workspace is inside a git repository."
+    echo "ERROR: Could not determine current git branch." >&2
+    echo "Ensure the workspace is inside a git repository." >&2
     exit 2
   fi
 
   if [[ "$CURRENT_BRANCH" == "HEAD" ]]; then
-    echo "ERROR: Repository is in detached HEAD state."
-    echo "Coding tasks must be completed on a named feature branch."
-    echo ""
-    echo "Solution: git checkout -b feature/TASK-{ID}"
+    echo "ERROR: Repository is in detached HEAD state." >&2
+    echo "Coding tasks must be completed on a named feature branch." >&2
+    echo "" >&2
+    echo "Solution: git checkout -b feature/TASK-{ID}" >&2
     exit 2
   fi
 
   if [[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "master" ]]; then
-    echo "ERROR: Task '${TASK_SUBJECT}' is completing on branch '$CURRENT_BRANCH'."
-    echo "Direct commits to main/master are prohibited for coding tasks."
-    echo ""
-    echo "Solution:"
-    echo "  git checkout -b feature/TASK-{ID}"
-    echo "  git cherry-pick <your commits>   # if commits already exist"
+    echo "ERROR: Task '${TASK_SUBJECT}' (${TEAMMATE_NAME}) is completing on branch '$CURRENT_BRANCH'." >&2
+    echo "Direct commits to main/master are prohibited for all coding and documentation tasks." >&2
+    echo "" >&2
+    echo "Solution:" >&2
+    echo "  git checkout -b feature/TASK-{ID}" >&2
+    echo "  git cherry-pick <your commits>   # if commits already exist on main" >&2
     exit 2
   fi
 fi

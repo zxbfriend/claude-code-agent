@@ -42,16 +42,15 @@ Validation and delivery
 ```
 your-project/
 ├── CLAUDE.md                        ← Project guide (every agent reads this on spawn)
-    ├── config/
-    ├── settings.json                ← Claude Code config (Agent Teams + hooks + permissions)
-    ├── config/
+└── .claude/
+    ├── settings.json                ← Project-level shared settings (Agent Teams + hooks + permissions)
     ├── config/
     │   └── VARIABLES.md             ← Context variable definitions and path conventions
     ├── messaging/
     │   └── PROTOCOL.md              ← Inter-agent message formats
     ├── hooks/
-    │   ├── teammate-idle.sh         ← Blocks idle when pending tasks exist
-    │   ├── task-created.sh          ← Validates task fields and flyway_version
+    │   ├── teammate-idle.sh         ← Blocks idle when claimable tasks exist
+    │   ├── task-created.sh          ← Validates task subject and id on creation
     │   └── task-completed.sh        ← Blocks direct commits to main/master
     ├── agents/
     │   ├── pm-agent.md
@@ -90,7 +89,6 @@ your-project/
 ```bash
 cp -r agent-teams/.claude  ./your-project/
 cp agent-teams/CLAUDE.md   ./your-project/
-cp agent-teams/.claude/settings.json ./your-project/.claude/
 ```
 
 ### 2. Fill in CLAUDE.md
@@ -210,9 +208,9 @@ This prevents the team from stalling on plan approval for routine features.
 
 | Hook | File | Purpose |
 |---|---|---|
-| TaskCreated | `.claude/hooks/task-created.sh` | Validates official fields (task_subject, task_id, teammate_name); complex schema self-checked by pm-agent |
-| TaskCompleted | `.claude/hooks/task-completed.sh` | Detects coding tasks via subject keywords + TASK-LIST.md lookup; blocks completion on main/master |
-| TeammateIdle | `.claude/hooks/teammate-idle.sh` | Reads teammate_name and team_name from stdin JSON; checks pending tasks |
+| TaskCreated | `.claude/hooks/task-created.sh` | Validates `task_subject` (non-empty) and `task_id` (present); `teammate_name` intentionally not enforced (unassigned tasks are valid) |
+| TaskCompleted | `.claude/hooks/task-completed.sh` | Identifies coding tasks by teammate name (backend/frontend/dba/devops-agent) or subject keywords; blocks completion on main/master |
+| TeammateIdle | `.claude/hooks/teammate-idle.sh` | Reads stdin JSON for teammate_name; counts only claimable tasks (assignee match + all deps completed + not blocked) |
 
 ---
 

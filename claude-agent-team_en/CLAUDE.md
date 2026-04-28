@@ -73,15 +73,15 @@ pm-agent will:
 ```
 your-project/
 ├── CLAUDE.md                        ← Project guide (read by every agent)
-├── settings.json                    ← Claude Code config (enables Agent Teams + hooks)
 └── .claude/
+    ├── settings.json                ← Project-level shared settings (Agent Teams + hooks + permissions)
     ├── config/
     │   └── VARIABLES.md             ← Context variable definitions
     ├── messaging/
     │   └── PROTOCOL.md              ← Inter-agent message formats
     ├── hooks/
-    │   ├── teammate-idle.sh         ← Prevents idle when pending tasks exist
-    │   ├── task-created.sh          ← Validates task fields on creation
+    │   ├── teammate-idle.sh         ← Prevents idle when claimable tasks exist
+    │   ├── task-created.sh          ← Validates task subject and id on creation
     │   └── task-completed.sh        ← Blocks direct commits to main/master
     ├── agents/
     │   └── *.md                     ← Agent definitions

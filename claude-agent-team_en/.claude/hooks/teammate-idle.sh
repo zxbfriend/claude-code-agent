@@ -2,13 +2,16 @@
 # TeammateIdle Hook
 # Runs when a teammate is about to go idle.
 # Exit 0  → allow idle
-# Exit 2  → send STDOUT as feedback and keep the teammate working
+# Exit 2  → prevent idle; feedback written to stderr is returned to the teammate
 #
 # Official Claude Code input (via stdin, JSON):
 #   teammate_name  — name of the idle teammate
 #   team_name      — name of the current team
 #
-# NOTE: Input arrives via stdin JSON, NOT as environment variables.
+# A task is "claimable" by this teammate only when ALL of:
+#   1. status == "pending"  (not blocked, in_progress, or completed)
+#   2. assignee == teammate_name  OR  assignee is unassigned/empty
+#   3. all task IDs listed in depends_on are completed in the same task list
 
 set -euo pipefail
 
@@ -19,54 +22,92 @@ fi
 HOOK_JSON=$(cat)
 
 TEAMMATE=$(echo "$HOOK_JSON" | python3 -c \
-  "import json,sys; print(json.load(sys.stdin).get('teammate_name','unknown'))" 2>/dev/null || echo "unknown")
+  "import json,sys; print(json.load(sys.stdin).get('teammate_name',''))" 2>/dev/null || echo "")
 TEAM_NAME=$(echo "$HOOK_JSON" | python3 -c \
   "import json,sys; print(json.load(sys.stdin).get('team_name',''))" 2>/dev/null || echo "")
 
-# No team context — allow idle
-if [[ -z "$TEAM_NAME" ]]; then
+# No team or teammate context — allow idle
+if [[ -z "$TEAM_NAME" || -z "$TEAMMATE" ]]; then
   exit 0
 fi
 
-PENDING=0
-
-# ── Strategy 1: Claude Code internal task store (~/.claude/tasks/{team})
-TASK_DIR="${HOME}/.claude/tasks/${TEAM_NAME}"
-if [[ -d "$TASK_DIR" ]]; then
-  if command -v jq >/dev/null 2>&1; then
-    PENDING=$(find "$TASK_DIR" -maxdepth 1 -name "*.json" -print0 2>/dev/null \
-      | xargs -0 jq -r 'select(.status == "pending") | .id // empty' 2>/dev/null \
-      | wc -l | tr -d ' ' || echo 0)
-  else
-    PENDING=$(find "$TASK_DIR" -maxdepth 1 -name "*.json" -print0 2>/dev/null \
-      | xargs -0 python3 -c "
-import json, sys
-count = 0
-for path in sys.argv[1:]:
-    try:
-        with open(path) as f:
-            d = json.load(f)
-        if d.get('status') == 'pending':
-            count += 1
-    except Exception:
-        pass
-print(count)
-" 2>/dev/null || echo 0)
-  fi
-fi
-
-# ── Strategy 2: scan latest TASK-LIST.md in outputs/
-if [[ "$PENDING" -eq 0 && -d "outputs" ]]; then
-  LATEST_TASK_LIST=$(find outputs -maxdepth 3 -name "TASK-LIST.md" 2>/dev/null \
+# ── Find the latest TASK-LIST.md produced by pm-agent
+TASK_LIST=""
+if [[ -d "outputs" ]]; then
+  TASK_LIST=$(find outputs -maxdepth 3 -name "TASK-LIST.md" 2>/dev/null \
     | sort -r | head -1 || true)
-  if [[ -n "$LATEST_TASK_LIST" && -f "$LATEST_TASK_LIST" ]]; then
-    PENDING=$(grep -c '"status".*"pending"' "$LATEST_TASK_LIST" 2>/dev/null || echo 0)
-  fi
 fi
 
-if [[ "$PENDING" -gt 0 ]]; then
-  echo "Teammate '${TEAMMATE}': ${PENDING} pending task(s) remain on the shared task list."
-  echo "Check the task list for work you can claim before going idle."
+if [[ -z "$TASK_LIST" || ! -f "$TASK_LIST" ]]; then
+  # No task list found — cannot determine claimable tasks, allow idle
+  exit 0
+fi
+
+# ── Count claimable tasks for this specific teammate
+CLAIMABLE=$(TASK_LIST="$TASK_LIST" TEAMMATE="$TEAMMATE" python3 - 2>/dev/null <<'PYEOF'
+import json, os, re, sys
+
+task_list_path = os.environ.get("TASK_LIST", "")
+teammate = os.environ.get("TEAMMATE", "")
+
+try:
+    with open(task_list_path) as f:
+        content = f.read()
+except Exception:
+    print(0)
+    sys.exit(0)
+
+# Extract the largest JSON array from a ```json ... ``` code fence
+blocks = re.findall(r'```json\s*(\[.*?\])\s*```', content, re.DOTALL)
+if not blocks:
+    print(0)
+    sys.exit(0)
+
+tasks = []
+for block in blocks:
+    try:
+        parsed = json.loads(block)
+        if isinstance(parsed, list) and len(parsed) > len(tasks):
+            tasks = parsed
+    except Exception:
+        continue
+
+if not tasks:
+    print(0)
+    sys.exit(0)
+
+# Build a set of completed task IDs for dependency checking
+completed_ids = {t.get("id") for t in tasks if t.get("status") == "completed"}
+
+claimable = 0
+for task in tasks:
+    status   = task.get("status", "")
+    assignee = task.get("assignee", "")
+    depends_on = task.get("depends_on", [])
+
+    # Must be pending (not blocked, in_progress, or completed)
+    if status != "pending":
+        continue
+
+    # Must be assigned to this teammate or genuinely unassigned
+    if assignee and assignee not in (teammate, "unassigned", ""):
+        continue
+
+    # All dependencies must be completed
+    if not all(dep in completed_ids for dep in depends_on):
+        continue
+
+    claimable += 1
+
+print(claimable)
+PYEOF
+)
+
+CLAIMABLE="${CLAIMABLE:-0}"
+
+if [[ "$CLAIMABLE" -gt 0 ]]; then
+  echo "Teammate '${TEAMMATE}': ${CLAIMABLE} claimable task(s) available in the task list." >&2
+  echo "Check TASK-LIST.md for tasks assigned to you or unassigned tasks whose dependencies are complete." >&2
   exit 2
 fi
 

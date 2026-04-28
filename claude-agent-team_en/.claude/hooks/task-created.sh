@@ -2,19 +2,21 @@
 # TaskCreated Hook
 # Runs when a task is about to be created.
 # Exit 0  → allow creation
-# Exit 2  → reject creation, send STDOUT as feedback
+# Exit 2  → reject creation; feedback written to stderr is returned to the model
 #
 # Official Claude Code input (via stdin, JSON):
 #   task_id          — system-assigned task identifier
-#   task_subject     — task title / subject line
-#   task_description — task description body
-#   teammate_name    — name of the teammate being assigned
-#   team_name        — name of the current team
+#   task_subject     — task title / subject line  (required)
+#   task_description — task description body      (optional)
+#   teammate_name    — name of the teammate creating this task (optional, may be absent)
+#   team_name        — name of the current team                (optional)
 #
-# NOTE: Complex task schema fields (type, assignee, file_domain, flyway_version, etc.)
-# are NOT present in this hook input. Those fields live in the shared TASK-LIST.md and
-# are validated by pm-agent's own self-check after writing the task list.
-# This hook performs only lightweight checks available from official input fields.
+# NOTE: teammate_name is the teammate who is *creating* the task, not the assignee.
+# It is optional in the official spec; unassigned tasks are valid in Agent Teams.
+# Assignee enforcement belongs in pm-agent's TASK-LIST.md self-check, not here.
+#
+# Complex schema fields (type, file_domain, flyway_version, etc.) are NOT present in
+# this hook's input. They live in TASK-LIST.md and are validated by pm-agent self-check.
 
 set -euo pipefail
 
@@ -32,17 +34,15 @@ data = json.loads(os.environ.get("HOOK_JSON", "{}"))
 
 errors = []
 
+# task_subject must be non-empty
 task_subject = data.get("task_subject", "")
 if not isinstance(task_subject, str) or not task_subject.strip():
     errors.append("'task_subject' is empty — every task must have a non-empty subject/title.")
 
+# task_id must be present (system-assigned; absence indicates an integration issue)
 task_id = data.get("task_id", "")
 if not isinstance(task_id, str) or not task_id.strip():
     errors.append("'task_id' is missing — this may indicate a hook integration issue.")
-
-teammate_name = data.get("teammate_name", "")
-if not isinstance(teammate_name, str) or not teammate_name.strip():
-    errors.append("'teammate_name' is empty — every task must have an assigned teammate.")
 
 if errors:
     for e in errors:
@@ -54,11 +54,8 @@ EXIT_CODE=$?
 set -e
 
 if [[ $EXIT_CODE -ne 0 ]]; then
-  echo "Task creation validation failed:"
-  echo "$VALIDATION"
-  echo ""
-  echo "Note: Complex schema fields (type, file_domain, flyway_version, etc.) are"
-  echo "validated by pm-agent's self-check after writing TASK-LIST.md, not in this hook."
+  echo "Task creation validation failed:" >&2
+  echo "$VALIDATION" >&2
   exit 2
 fi
 
