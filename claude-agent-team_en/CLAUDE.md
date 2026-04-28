@@ -16,6 +16,12 @@ MAIN_BRANCH:    main
 ```
 <!-- END CUSTOMIZE -->
 
+> **Before running any agent team**, verify placeholders are filled:
+> ```bash
+> grep -E "\{your-" CLAUDE.md && echo "ERROR: unfilled placeholders found — fill them before proceeding" && exit 1 || echo "OK"
+> ```
+> If this prints ERROR, stop and update the fields above.
+
 ---
 
 ## 2. How to Start the Agent Team
@@ -62,7 +68,32 @@ pm-agent will:
 
 ---
 
-## 4. Output Artifact Convention
+## 4. File Layout
+
+```
+your-project/
+├── CLAUDE.md                        ← Project guide (read by every agent)
+├── settings.json                    ← Claude Code config (enables Agent Teams + hooks)
+└── .claude/
+    ├── config/
+    │   └── VARIABLES.md             ← Context variable definitions
+    ├── messaging/
+    │   └── PROTOCOL.md              ← Inter-agent message formats
+    ├── hooks/
+    │   ├── teammate-idle.sh         ← Prevents idle when pending tasks exist
+    │   ├── task-created.sh          ← Validates task fields on creation
+    │   └── task-completed.sh        ← Blocks direct commits to main/master
+    ├── agents/
+    │   └── *.md                     ← Agent definitions
+    ├── workflows/
+    │   └── *.md                     ← Workflow step guides
+    └── templates/
+        └── *.md                     ← Output document templates
+```
+
+---
+
+## 5. Output Artifact Convention
 
 `pm-agent` must initialize and pass the shared context package from `.claude/config/VARIABLES.md` to every teammate before work starts. Teammates must not guess `OUTPUT_BASE`, `BRANCH`, `MODULE`, or derived artifact paths.
 
@@ -87,7 +118,7 @@ Each run creates a new timestamped folder — historical outputs are never overw
 
 ---
 
-## 5. Git Branch Convention
+## 6. Git Branch Convention
 
 Every coding task (implement / fix / refactor) MUST:
 
@@ -116,48 +147,55 @@ Never commit directly to `main` or `master`.
 
 ---
 
-## 6. Human Decision Gate Protocol
+## 7. Human Decision Gate Protocol
 
 **Trigger conditions — architect-agent MUST pause for human confirmation when any condition applies:**
 - Two or more technically valid approaches exist and cost, timeline, operational complexity, or risk differs by more than 20%
 - DB migration includes data transformation, backfill, split/merge, or estimated work greater than 16 hours
-- Architecture affects two or more layers, such as backend + dba + devops
-- A new external dependency introduces cost, SLA, data residency, or breaking-change risk
-- A security-relevant architectural decision needs to be made
+- A new external dependency introduces cost, SLA, data residency, or breaking-change risk (e.g. Redis cluster, payment provider, auth provider)
+- A security-relevant architectural decision must be made
 
-Do not trigger a gate for standard CRUD, root-cause-clear bug fixes, or documentation-only work.
+Do not trigger a gate for: standard CRUD features, root-cause-clear bug fixes, documentation-only work, or adding new endpoints that follow established patterns.
 
-**Mechanism:**
-1. pm-agent may pre-create a blocker only when the decision need is obvious from the request.
-2. architect-agent makes the final gate decision during design.
-3. architect-agent creates a `decision-required` task and sends `DECISION-REQUIRED`.
-4. pm-agent replies with `ACK`, presents options to the human, and keeps dependent tasks `pending`.
-5. Human selects an option.
-6. pm-agent marks the decision task `completed` with `decision`, `decision_timestamp`, and `decision_notes`.
-7. pm-agent immediately scans dependent tasks and starts every task whose dependencies are now complete and whose start does not violate concurrency or shared-file rules.
+**Decision Gate + Plan Review ordering:**
+1. If architect finds multiple options during design → send `DECISION-REQUIRED` to pm-agent **first**
+2. Wait for human decision
+3. Resume design with the chosen option
+4. If plan review is also required → send `ARCH-PLAN-REVIEW`
+5. Wait for `ARCH-PLAN-APPROVED`
+6. Write the final tech spec
+
+Never send `ARCH-PLAN-REVIEW` before a pending `DECISION-REQUIRED` is resolved.
 
 **Decision output format:** See `.claude/templates/decision-gate.md`
 
-## 6.1 Plan Approval Protocol
+## 7.1 Plan Approval Protocol
 
-architect-agent must request plan approval before writing the final tech spec when:
-- it is the first design for a new feature or major change
-- two or more layers are affected
-- a new external dependency is introduced
-- API contract, database model, security boundary, or deployment topology changes
+architect-agent must request plan approval before writing the final tech spec **only when** one or more of these apply:
+- A new external dependency is introduced (Redis, MQ, object storage, payment provider, auth provider)
+- An existing API contract changes in a breaking way (field removal, type change, removed endpoint)
+- A security boundary changes (new auth mechanism, new PII handling path)
+- A DB migration involves data transformation, backfill, or table split/merge
+- Deployment topology changes (new service, new infrastructure component)
+
+Standard cases that do **not** require plan approval:
+- Standard CRUD feature (even if it touches backend + frontend + dba)
+- Adding new non-breaking API fields or endpoints following existing patterns
+- Bug fixes
+- Documentation
 
 Message formats: `ARCH-PLAN-REVIEW` and `ARCH-PLAN-APPROVED` in `.claude/messaging/PROTOCOL.md`.
 
 ---
 
-## 7. Task List Format
+## 8. Task List Format
 
 Tasks on the shared list use this structure:
 
 ```json
 {
   "id": "TASK-{YYYYMMDD}-{NNN}",
-  "type": "design|implement|fix|test|review|deploy|docs|decision-required",
+  "type": "design|implement|fix|refactor|test|review|deploy|docs|decision-required",
   "title": "Short task title",
   "description": "What needs to be done",
   "assignee": "agent-name or unassigned",
@@ -177,11 +215,13 @@ All inter-agent messages must follow `.claude/messaging/PROTOCOL.md`.
 
 Shared file edits must be serialized. If multiple agents need the same shared file, pm-agent chooses one owner and adds `depends_on` edges for all other tasks.
 
-Flyway versions are allocated by pm-agent in the task list. dba-agent must use the assigned `flyway_version`.
+Flyway versions are allocated by pm-agent in the task list. dba-agent must use the assigned `flyway_version` and must send `BLOCKED` if it is missing.
+
+> **Workflow type ≠ task type.** The workflow (new-feature, bug-fix, refactor, …) is the routing label pm-agent uses to select the correct `.claude/workflows/*.md` file. The task `type` field is the per-task action label stored in the task list JSON. Example: a `refactor` workflow produces tasks with `type: refactor`; a `new-feature` workflow produces tasks with `type: design`, `implement`, `test`, `review`, etc.
 
 ---
 
-## 8. Quality Gates (Non-Negotiable)
+## 9. Quality Gates (Non-Negotiable)
 
 | Gate | Who | Condition |
 |---|---|---|
@@ -193,7 +233,7 @@ Flyway versions are allocated by pm-agent in the task list. dba-agent must use t
 
 ---
 
-## 9. Tech Constraints
+## 10. Tech Constraints
 
 ```
 # Customize for your project:
@@ -211,7 +251,7 @@ CONTAINER:        Docker + Kubernetes
 
 ---
 
-## 10. Prohibited Actions (All Agents)
+## 11. Prohibited Actions (All Agents)
 
 ```
 ❌ Direct commits to main/master
@@ -220,42 +260,26 @@ CONTAINER:        Docker + Kubernetes
 ❌ Swallowing exceptions without logging
 ❌ Writing output files outside outputs/ directory (except source code)
 ❌ Skipping the human decision gate when triggered
-❌ db-agent making schema changes without Flyway migrations
+❌ dba-agent making schema changes without Flyway migrations
+❌ Sending ARCH-PLAN-REVIEW while a DECISION-REQUIRED is still open
 ```
 
 ---
 
-## 11. Initialization Checklist
-
-Before starting the first Agent Team, verify:
-
-- [ ] `PROJECT_ID` is filled and matches the repository or service name
-- [ ] `TECH_STACK` lists major frameworks and versions
-- [ ] `REPO_URL` is a real repository URL
-- [ ] `MAIN_BRANCH` matches the actual main branch (`main` or `master`)
-
-Validation command:
-
-```bash
-grep -E "\{your-|your-" CLAUDE.md
-```
-
-If this command prints any line, placeholders remain and must be replaced before running the team.
-
 ## 12. Operational Limits
 
 ```yaml
-MAX_CONCURRENT_AGENTS: 4
+MAX_CONCURRENT_AGENTS: 4   # pm-agent enforces this during task activation
 TASK_TIMEOUTS:
-  design: 4h
+  design:    4h
   implement: 8h
-  fix: 8h
-  refactor: 8h
-  test: 4h
-  review: 2h
-  security: 2h
-  deploy: 4h
-  docs: 4h
+  fix:       8h
+  refactor:  8h
+  test:      4h
+  review:    2h
+  security:  2h
+  deploy:    4h
+  docs:      4h
 ```
 
 Rollback policy:

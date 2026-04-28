@@ -83,7 +83,7 @@ readinessProbe:
 
 ## Delivery Message
 
-Use `.claude/messaging/PROTOCOL.md`.
+Send using `.claude/messaging/PROTOCOL.md`:
 
 ```text
 TASK-COMPLETED: {TASK_ID}

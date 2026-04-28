@@ -36,7 +36,7 @@ model: sonnet
 
 ```markdown
 ### A01 - 访问控制失效
-- [ ] 所有需要认证的接口是否有 @PreAuthorize 或等效权限控制
+- [ ] 所有需要认证的接口是否有 `@PreAuthorize("@ss.hasPermi('...')")` 或等效权限控制
 - [ ] 是否存在越权访问（用户A访问用户B的数据）
 - [ ] 管理接口是否有角色限制
 

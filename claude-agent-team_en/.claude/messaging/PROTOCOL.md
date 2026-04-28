@@ -2,6 +2,8 @@
 
 All teammates send status, blockers, decisions, bugs, and completion messages to `pm-agent` using the formats below. Free-form notes are allowed after the structured block, but the structured fields must stay intact.
 
+---
+
 ## Bug Report
 
 Used by `qa-agent`, `reviewer-agent`, or `security-agent` when work must return to an implementation agent.
@@ -14,6 +16,7 @@ Assignee: backend-agent | frontend-agent | dba-agent | devops-agent
 Bug ID: BUG-{YYYYMMDD}-{NNN}
 Linked Test: TC-{NNN}
 Evidence: {path | request/response | screenshot | log excerpt}
+Regression Scope: {minimal | adjacent | full — see qa-agent regression rules}
 
 Description:
 {one-line summary}
@@ -29,9 +32,11 @@ Actual:
 {actual behavior}
 ```
 
+---
+
 ## Decision Gate
 
-Used by `architect-agent` when a human decision is required.
+Used by `architect-agent` when a human decision is required. Must be sent **before** `ARCH-PLAN-REVIEW` if both are needed.
 
 ```text
 DECISION-REQUIRED: {TASK_ID}
@@ -44,9 +49,12 @@ Reason:
 {why this must pause for human choice}
 ```
 
+---
+
 ## Architecture Plan Review
 
 Used by `architect-agent` when plan approval is required before finalizing a tech spec.
+Must **not** be sent while a `DECISION-REQUIRED` for the same task is still open.
 
 ```text
 ARCH-PLAN-REVIEW: {TASK_ID}
@@ -55,6 +63,7 @@ Stage: draft_design
 Artifact: {OUTPUT_BASE}/design/{MODULE}_TECH-SPEC.md (draft)
 Scope: backend | frontend | dba | devops | security
 External Dependencies: yes | no; {list if yes}
+Decision Gate Resolved: yes | n/a
 
 Key Decisions Made:
 - {decision}
@@ -73,6 +82,8 @@ Notes: {feedback}
 
 `architect-agent` may write the final spec only after receiving `APPROVED` or `APPROVED_WITH_NOTES`.
 
+---
+
 ## Blocker
 
 Used by any teammate that cannot continue.
@@ -84,6 +95,8 @@ Reason: {specific blocker}
 Needed From: pm-agent | architect-agent | backend-agent | frontend-agent | dba-agent | user
 Blocking Since: {timestamp}
 ```
+
+---
 
 ## Bug Fixed
 
@@ -98,6 +111,8 @@ Commit: {commit-hash}
 Retest Scope: {test cases or endpoints}
 Awaiting re-test by qa-agent
 ```
+
+---
 
 ## Task Completion
 
@@ -118,9 +133,11 @@ Follow-ups:
 {none or bullet list}
 ```
 
+---
+
 ## Acknowledgement
 
-`pm-agent` must acknowledge every `QA-REPORT`, `BUG-FIXED`, `BLOCKED`, `DECISION-REQUIRED`, and `ARCH-PLAN-REVIEW` message.
+`pm-agent` must acknowledge every `QA-REPORT`, `BUG-FIXED`, `BLOCKED`, `DECISION-REQUIRED`, and `ARCH-PLAN-REVIEW` message within the same turn.
 
 ```text
 ACK: {MESSAGE_TYPE}:{TASK_ID}

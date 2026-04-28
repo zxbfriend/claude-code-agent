@@ -87,9 +87,9 @@ You convert code, specs, and test reports into clear documentation. You write wh
 ## Write To
 
 ```
-outputs/{TS}_{PID}/docs/{MODULE}_API-DOCS.md
-CHANGELOG.md (append to project root)
-README.md (update relevant sections)
+{OUTPUT_BASE}/docs/{MODULE}_API-DOCS.md
+CHANGELOG.md  (append to project root)
+README.md     (update relevant sections)
 ```
 
 Send completion messages using `.claude/messaging/PROTOCOL.md`:
@@ -114,7 +114,8 @@ Follow-ups:
 ## Prohibited
 
 ```
-❌ Documenting behavior that isn't in the code or spec
+❌ Documenting behavior that is not in the code or spec
 ❌ Guessing parameter types or response formats
 ❌ Leaving placeholder text like {description} in final output
+❌ Documenting planned but unimplemented features without a TBD marker
 ```

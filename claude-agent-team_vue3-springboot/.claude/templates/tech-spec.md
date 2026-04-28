@@ -53,56 +53,43 @@ graph LR
 
 ### 3.1 接口列表
 
-| 方法 | 路径 | 描述 | 认证 |
+| 方法 | 路径 | 描述 | 权限标识 |
 |------|------|------|------|
-| POST | /api/v1/{resource} | {描述} | 是/否 |
-| GET | /api/v1/{resource}/{id} | {描述} | 是/否 |
+| GET | /system/{resource}/list | 分页查询 | `{module}:{resource}:list` |
+| GET | /system/{resource}/{id} | 详情查询 | `{module}:{resource}:query` |
+| POST | /system/{resource}/add | 新增 | `{module}:{resource}:add` |
+| PUT | /system/{resource}/edit | 修改 | `{module}:{resource}:edit` |
+| DELETE | /system/{resource}/{id} | 删除 | `{module}:{resource}:remove` |
 
 ### 3.2 接口详情
 
 #### {接口名称}
 
 - **HTTP 方法**：POST / GET / PUT / DELETE
-- **路径**：`/api/v1/{resource}`
+- **路径**：`/system/{resource}/{action}`
 - **描述**：{接口功能描述}
-- **认证**：需要 Bearer Token / 不需要
+- **权限标识**：`@PreAuthorize("@ss.hasPermi('{module}:{resource}:{action}')")`
 
 **请求参数**
 
 | 字段 | 类型 | 必填 | 校验规则 | 说明 |
 |------|------|------|---------|------|
 | fieldName | String | 是 | 长度 1-50 | 字段说明 |
-| pageNo | Integer | 否 | 默认 1，最大 100 | 页码 |
 
-**响应参数**
+**响应参数 (AjaxResult)**
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| id | Long | 资源 ID |
-| name | String | 名称 |
-| createdAt | Long | 创建时间戳（毫秒）|
-
-**业务错误码**
-
-| 错误码 | HTTP 状态码 | 说明 | 触发场景 |
-|--------|-----------|------|---------|
-| 10001 | 400 | {错误描述} | {触发条件} |
-| 10002 | 400 | {错误描述} | {触发条件} |
-
-**请求示例**
-
-```json
-{
-  "fieldName": "value"
-}
-```
+| code | Integer | 状态码 (200成功) |
+| msg | String | 提示消息 |
+| data | Object | 业务数据 |
 
 **响应示例（成功）**
 
 ```json
 {
   "code": 200,
-  "message": "success",
+  "msg": "操作成功",
   "data": {
     "id": 1,
     "name": "example"
@@ -110,28 +97,9 @@ graph LR
 }
 ```
 
-**响应示例（失败）**
-
-```json
-{
-  "code": 10001,
-  "message": "错误描述",
-  "data": null
-}
-```
-
 ---
 
 ## 4. 数据模型
-
-### 4.1 实体关系
-
-```
-{ER 图或文字描述实体间关系}
-
-User 1 --- N Order（一个用户有多个订单）
-Order 1 --- N OrderItem（一个订单有多个商品）
-```
 
 ### 4.2 数据库表设计
 
@@ -141,12 +109,14 @@ Order 1 --- N OrderItem（一个订单有多个商品）
 
 | 字段名 | 数据类型 | 长度 | 可空 | 默认值 | 说明 |
 |--------|---------|------|------|--------|------|
-| id | BIGINT | - | 否 | AUTO_INCREMENT | 主键 |
+| id | BIGINT | 20 | 否 | AUTO_INCREMENT | 主键 |
 | {field1} | VARCHAR | 64 | 否 | - | {说明} |
-| {field2} | INT | - | 否 | 0 | {说明} |
-| created_at | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
-| updated_at | DATETIME | - | 否 | CURRENT_TIMESTAMP | 更新时间 |
-| is_deleted | TINYINT | 1 | 否 | 0 | 逻辑删除 |
+| create_by | VARCHAR | 64 | 是 | - | 创建者 |
+| create_time | DATETIME | - | 是 | - | 创建时间 |
+| update_by | VARCHAR | 64 | 是 | - | 更新者 |
+| update_time | DATETIME | - | 是 | - | 更新时间 |
+| remark | VARCHAR | 500 | 是 | - | 备注 |
+| del_flag | CHAR | 1 | 否 | '0' | 删除标志（0代表存在 2代表删除） |
 
 **索引设计**
 

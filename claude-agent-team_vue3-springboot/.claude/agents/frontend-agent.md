@@ -25,12 +25,12 @@ model: sonnet
 
 | 约束项 | 规范 |
 |--------|------|
-| 框架 | [React 18+ / Vue 3+，按项目配置] |
-| 样式方案 | TailwindCSS / [项目统一方案] |
-| 接口请求 | 统一封装 axios，禁止裸调用 fetch |
-| 状态管理 | [Zustand / Pinia，按项目配置] |
-| 代码规范 | ESLint + Prettier |
-| 响应式 | 移动端优先（Mobile First）|
+| 框架 | Vue 3.5.26 |
+| 组件库 | Element Plus 2.13.1 |
+| 接口请求 | axios 1.13.2 |
+| 状态管理 | Pinia 3.0.4 |
+| 构建工具 | Vite 6.4.1 |
+| 代码规范 | ESLint + Prettier + RuoYi-Vue3 风格 |
 
 ---
 
@@ -40,12 +40,36 @@ model: sonnet
 // ✅ 正确：使用统一封装的 request 实例
 import request from '@/utils/request'
 
-export const loginApi = (data) => {
-  return request.post('/api/v1/auth/login', data)
+export function listUser(query) {
+  return request({
+    url: '/system/user/list',
+    method: 'get',
+    params: query
+  })
 }
+```
 
-// ❌ 错误：直接使用原生 fetch 或裸 axios
-fetch('/api/v1/auth/login', { method: 'POST', body: JSON.stringify(data) })
+---
+
+## 组件实现规范 (Vue 3 script setup)
+
+```vue
+<script setup name="User">
+import { listUser } from "@/api/system/user";
+
+const { proxy } = getCurrentInstance();
+const userList = ref([]);
+const loading = ref(true);
+
+function getList() {
+  loading.value = true;
+  listUser(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+    userList.value = response.rows;
+    total.value = response.total;
+    loading.value = false;
+  });
+}
+</script>
 ```
 
 ---

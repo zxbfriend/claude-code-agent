@@ -33,12 +33,12 @@ Step 2: architect-agent
 
 Step 3（并行）:
    ├── Step 3-A: dba-agent
-   │     ├── 根据 architect-agent 的数据模型，编写 Flyway 迁移脚本
+   │     ├── 根据 architect-agent 的数据模型，编写 SQL 变更脚本
    │     ├── 确认索引设计
-   │     └── 输出：V{版本}__xxx.sql
+   │     └── 输出：sql/{YYYYMMDD}.sql
    │
    └── Step 3-B: backend-agent
-         ├── 依据技术规格实现 Controller / Service / Repository
+         ├── 依据技术规格实现 Controller / Service / Mapper / Domain
          ├── 编写单元测试（正常流程 + 至少2个异常场景）
          └── 输出：实现代码 + 测试代码
 
@@ -91,7 +91,7 @@ Step 6: pm-agent
 2. dba-agent 和 backend-agent（和 frontend-agent）可以并行
 3. qa-agent 在所有开发完成后统一介入
 4. reviewer-agent 是最后一道门，不在开发过程中介入
-5. 所有数据库变更必须通过 Flyway 脚本，不能直接 DDL
+5. 所有数据库变更必须通过 sql/ 目录下的脚本，严禁私自修改
 ```
 
 ---

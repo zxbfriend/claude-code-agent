@@ -38,7 +38,7 @@
 | 步骤 | Agent | 任务说明 | 依赖步骤 | 状态 |
 |------|-------|---------|---------|------|
 | 1 | architect-agent | 技术方案设计 | 无 | ⏳ 待开始 |
-| 2-A | dba-agent | 数据库迁移脚本 | Step 1 | ⏳ 待开始 |
+| 2-A | dba-agent | 数据库变更脚本 | Step 1 | ⏳ 待开始 |
 | 2-B | backend-agent | 后端实现 | Step 1 | ⏳ 待开始 |
 | 2-C | frontend-agent | 前端实现 | Step 1 | ⏳ 待开始 |
 | 3 | qa-agent | 功能测试 | Step 2 全部完成 | ⏳ 待开始 |
@@ -53,7 +53,7 @@
 | 交付物 | 产出 Agent | 完成状态 |
 |--------|-----------|---------|
 | 技术规格文档（tech-spec.md）| architect-agent | ⏳ |
-| 数据库迁移脚本 | dba-agent | ⏳ |
+| 数据库变更脚本 | dba-agent | ⏳ |
 | 后端实现代码 + 单元测试 | backend-agent | ⏳ |
 | 前端实现代码 | frontend-agent | ⏳ |
 | 测试报告（test-report.md）| qa-agent | ⏳ |
@@ -72,7 +72,7 @@
   "priority": "P1",
   "context": {
     "requirement": "需求描述",
-    "constraints": ["Java 17", "Spring Boot 3.x"],
+    "constraints": ["Java 17", "Spring Boot 4.0.5", "MyBatis", "Vue 3"],
     "dependencies": []
   },
   "expected_output": "接口规格文档 + 数据模型设计",

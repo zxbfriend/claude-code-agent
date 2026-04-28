@@ -143,11 +143,12 @@ model: sonnet
 
 ## 技术约束
 
-- 接口路径格式：`/api/v{n}/{resource}`（RESTful 风格）
-- 数据库必须包含：`id`, `created_at`, `updated_at`, `is_deleted` 基础字段
-- 逻辑删除统一使用 `is_deleted` 字段，禁止物理删除用户数据
-- 所有接口必须定义明确的错误码
-- Redis Key 必须有命名空间前缀（如 `{project}:{module}:{key}`）
+- 接口路径格式：`/{module}/{resource}/{action}`（符合 RuoYi 风格，如 `/system/user/list`）
+- 数据库基础字段：`create_by`, `create_time`, `update_by`, `update_time`, `remark`, `del_flag`
+- 逻辑删除：使用 `del_flag` 字段（0-正常, 2-删除）
+- 所有接口必须返回 `AjaxResult` 封装格式
+- Redis Key 前缀：`futurefab:{module}:{key}`
+- 技术栈：Java 17, Spring Boot 4.0.5, MyBatis, Vue 3 (Pinia + Element Plus)
 
 ---
 

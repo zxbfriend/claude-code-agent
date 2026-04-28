@@ -36,7 +36,7 @@ Step 4: reviewer-agent
 ```
 1. qa-agent 做全量回归（依赖升级影响面广，不能只做定向回归）
 2. 如果依赖包升级涉及安全漏洞修复，同步通知 security-agent 验证
-3. Major 版本升级（如 Spring Boot 2.x → 3.x）需要 architect-agent 评估影响
+3. Major 版本升级（如 Spring Boot 3.x → 4.x）需要 architect-agent 评估影响
 ```
 
 ---

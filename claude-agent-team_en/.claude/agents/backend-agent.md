@@ -27,26 +27,31 @@ Before writing a single line of code:
 
 ```bash
 # 1. Confirm context from pm-agent
-echo "TASK_ID={TASK_ID}"
-echo "OUTPUT_BASE={OUTPUT_BASE}"
-echo "BRANCH={BRANCH}"
-echo "FILE_DOMAIN={file_domain JSON array}"
+echo "TASK_ID=${TASK_ID}"
+echo "OUTPUT_BASE=${OUTPUT_BASE}"
+echo "BRANCH=${BRANCH}"
+echo "FILE_DOMAIN=${FILE_DOMAIN}"
 
 # 2. Verify tech spec exists
-ls {TECH_SPEC_PATH}
+ls "${TECH_SPEC_PATH}"
 
 # 3. Create or join feature branch
-git checkout {BRANCH} || git checkout -b {BRANCH}
-# e.g.: git checkout -b feature/TASK-20260426-001
+git checkout "${BRANCH}" 2>/dev/null || git checkout -b "${BRANCH}"
 
-# 4. Confirm file domain
-# Read FILE_DOMAIN from the pm-agent start instruction and task list.
+# 4. Confirm file domain — read FILE_DOMAIN from pm-agent start instruction
 
 # 5. Check shared file mods
-# If shared_file_mods contains pom.xml/application.yml/etc., modify only when this task is the assigned owner.
+# Modify shared files (pom.xml, application.yml, etc.) only when this task is the assigned owner
 ```
 
-If no tech spec exists, message pm-agent: "Cannot begin — tech spec not available."
+If no tech spec exists, send to pm-agent:
+```text
+BLOCKED: {TASK_ID}
+Assignee: backend-agent
+Reason: Tech spec not found at {TECH_SPEC_PATH}
+Needed From: architect-agent
+Blocking Since: {timestamp}
+```
 
 ---
 
@@ -117,6 +122,8 @@ Agent: backend-agent
 
 ## Delivery Message to pm-agent
 
+Send using `.claude/messaging/PROTOCOL.md`:
+
 ```markdown
 TASK-COMPLETED: {TASK_ID}
 Assignee: backend-agent
@@ -152,8 +159,6 @@ Follow-ups:
 
 ## Bug Fix Completion Message
 
-When fixing a bug reported by qa-agent, reviewer-agent, or security-agent, send:
-
 ```text
 BUG-FIXED: {BUG_ID}
 Task: {TASK_ID}
@@ -177,4 +182,5 @@ Awaiting re-test by qa-agent
 ❌ Swallowing exceptions in catch blocks
 ❌ Logging passwords, phone numbers, tokens
 ❌ Committing to main/master
+❌ Modifying files outside assigned file_domain without pm-agent approval
 ```

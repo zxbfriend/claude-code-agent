@@ -28,7 +28,7 @@ A01 Access Control
 
 A02 Cryptographic Failures
   [ ] Passwords use BCrypt/Argon2 (not MD5/SHA1)
-  [ ] Sensitive data encrypted in transit (HTTPS)
+  [ ] Sensitive data encrypted in transit (HTTPS enforced)
   [ ] No plaintext PII in DB
 
 A03 Injection

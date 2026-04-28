@@ -52,7 +52,7 @@ Step 6: reviewer-agent
 1. 先【定位】再出方案，architect-agent 在收到定位结论后才介入
 2. qa-agent 必须输出量化的性能对比数据（优化前 vs 优化后）
 3. 功能回归不能遗漏（优化可能破坏已有功能）
-4. 索引变更必须通过 Flyway 脚本（不可直接 ALTER TABLE）
+4. 索引变更必须通过 sql/ 目录下的脚本（不可直接 ALTER TABLE）
 ```
 
 ---

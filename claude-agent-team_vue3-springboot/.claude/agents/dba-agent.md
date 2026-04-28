@@ -27,57 +27,43 @@ model: sonnet
 |------|---------|
 | 新增数据表 | ✅ 必须 |
 | 修改表结构（加字段/改类型）| ✅ 必须 |
-| 接口响应时间 > 500ms（DB 慢） | ✅ 必须 |
+| 接口响应时间 > 1000ms（DB 慢） | ✅ 必须 |
 | backend-agent 申请 SQL 优化 | ✅ 必须 |
-| 仅修改业务逻辑（不涉及DB）| ❌ 不需要 |
-| 纯前端变更 | ❌ 不需要 |
 
 ---
 
-## 迁移脚本规范
+## SQL 脚本规范
 
 ### 命名规范
 
 ```
-V{主版本}.{次版本}.{序号}__{描述}.sql
+sql/{YYYYMMDD}.sql
 
 示例：
-V1.0.1__create_user_table.sql
-V1.0.2__add_login_log_table.sql
-V1.1.0__add_user_tag_column.sql
+sql/20260424.sql
 ```
 
 ### 脚本模板
 
 ```sql
 -- ============================================================
--- 迁移脚本：V{版本号}__{描述}
+-- 变更描述：{说明}
 -- 创建时间：{YYYY-MM-DD}
 -- 关联任务：{TASK-ID}
--- 描述：{变更说明}
 -- ============================================================
 
 -- 新建表示例
-CREATE TABLE `{table_name}` (
-    `id`         BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `{field1}`   VARCHAR(64)  NOT NULL                COMMENT '{字段说明}',
-    `{field2}`   INT          NOT NULL DEFAULT 0      COMMENT '{字段说明}',
-    `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `is_deleted` TINYINT(1)   NOT NULL DEFAULT 0      COMMENT '逻辑删除：0-未删除 1-已删除',
-    PRIMARY KEY (`id`),
-    INDEX `idx_{field1}` (`{field1}`) COMMENT '{索引说明}'
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COMMENT = '{表说明}';
-
--- 新增列示例
-ALTER TABLE `{table_name}`
-    ADD COLUMN `{new_field}` VARCHAR(255) NULL COMMENT '{字段说明}' AFTER `{after_field}`;
-
--- 新增索引示例
-ALTER TABLE `{table_name}`
-    ADD INDEX `idx_{field}` (`{field}`);
+CREATE TABLE `sys_xxx` (
+    `xxx_id`      bigint(20)      not null auto_increment    comment 'ID',
+    `xxx_name`    varchar(30)     default ''                 comment '名称',
+    `create_by`   varchar(64)     default ''                 comment '创建者',
+    `create_time` datetime                                   comment '创建时间',
+    `update_by`   varchar(64)     default ''                 comment '更新者',
+    `update_time` datetime                                   comment '更新时间',
+    `remark`      varchar(500)    default null               comment '备注',
+    `del_flag`    char(1)         default '0'                comment '删除标志（0代表存在 2代表删除）',
+    primary key (`xxx_id`)
+) engine=innodb comment = '业务表';
 ```
 
 ---

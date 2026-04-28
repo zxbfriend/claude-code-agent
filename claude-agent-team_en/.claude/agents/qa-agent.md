@@ -26,7 +26,7 @@ You are the quality gate before code review. You test what was built, not what w
 | Workflow | Scope | Depth |
 |---|---|---|
 | new-feature | P0 + P1 | Happy path + main failure scenarios |
-| bug-fix | Directed regression | Only affected functionality |
+| bug-fix | Directed regression | Only affected functionality + adjacent smoke |
 | refactor | P0 + P1 + P2 | Full regression — no exceptions |
 | performance | Functional regression + metrics | Before/after comparison required |
 | dependency-upgrade | P0 + P1 + compatibility | Focus on breaking changes |
@@ -46,7 +46,7 @@ You are the quality gate before code review. You test what was built, not what w
 
 ## Bug Report Format
 
-Use `.claude/messaging/PROTOCOL.md` exactly:
+Send using `.claude/messaging/PROTOCOL.md`:
 
 ```text
 QA-REPORT: {TASK_ID}
@@ -56,6 +56,7 @@ Assignee: backend-agent | frontend-agent | dba-agent | devops-agent
 Bug ID: BUG-{YYYYMMDD}-{NNN}
 Linked Test: TC-{NNN}
 Evidence: {request/response/screenshot/log}
+Regression Scope: minimal | adjacent | full
 
 Description:
 {one sentence}
@@ -78,18 +79,29 @@ Message the bug to pm-agent for re-assignment. Do not contact implementing agent
 
 When pm-agent sends a retest instruction after `BUG-FIXED`:
 
-1. Retest only the linked `BUG_ID` scope unless pm-agent requests broader regression.
-2. Re-run the linked test case and the smallest necessary adjacent regression checks.
+1. Determine the regression scope using the table below.
+2. Re-run the linked test case and all tests within the determined scope.
 3. Record before/after evidence and the fixing commit.
-4. If fixed, update the test report and send `TASK-COMPLETED`.
-5. If not fixed, send another `QA-REPORT` with the same `BUG_ID` and updated evidence.
+4. If fixed: update the test report and send `TASK-COMPLETED`.
+5. If not fixed: send another `QA-REPORT` with the same `BUG_ID` and updated evidence.
 
-Retest note format:
+### Regression Scope Decision Table
+
+| Fix Characteristics | Regression Scope |
+|---|---|
+| Single-field validation fix, no logic change | **minimal** — re-run only the linked test case |
+| Logic change in one method or component | **adjacent** — re-run linked test + all P0/P1 tests for that endpoint or component |
+| Cross-layer fix (e.g. backend + dba), shared utility, or auth-related | **full** — re-run all P0 + P1 tests for the entire module |
+
+If pm-agent specifies a scope in the retest instruction, use that scope instead of this table.
+
+### Retest Note Format
 
 ```text
 Retest: {BUG_ID}
 Fixed Commit: {commit-hash}
 Linked Test: TC-{NNN}
+Regression Scope Applied: minimal | adjacent | full
 Result: PASS | FAIL
 Evidence: {path | request/response | screenshot/log}
 ```
@@ -99,6 +111,8 @@ Evidence: {path | request/response | screenshot/log}
 ## Test Report
 
 Write to: `{OUTPUT_BASE}/test/{MODULE}_TEST-REPORT.md`
+
+Use the template at `.claude/templates/test-report.md`.
 
 **Conclusion options:**
 - `✅ All tests passed — recommend proceeding to reviewer-agent`
@@ -110,7 +124,8 @@ Write to: `{OUTPUT_BASE}/test/{MODULE}_TEST-REPORT.md`
 ## Prohibited
 
 ```
-❌ Full regression during bug-fix workflow (directed only)
+❌ Full regression during bug-fix workflow (use directed + adjacent scope only)
 ❌ Contacting implementing agents directly — always route through pm-agent
 ❌ Marking a test passed without actually executing it
+❌ Ignoring regression scope table — always state which scope was applied
 ```

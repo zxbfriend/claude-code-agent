@@ -4,49 +4,45 @@
 # Exit 0  → allow creation
 # Exit 2  → reject creation, send STDOUT as feedback
 #
-# Task data is passed as JSON on stdin.
+# Official Claude Code input (via stdin, JSON):
+#   task_id          — system-assigned task identifier
+#   task_subject     — task title / subject line
+#   task_description — task description body
+#   teammate_name    — name of the teammate being assigned
+#   team_name        — name of the current team
+#
+# NOTE: Complex task schema fields (type, assignee, file_domain, flyway_version, etc.)
+# are NOT present in this hook input. Those fields live in the shared TASK-LIST.md and
+# are validated by pm-agent's own self-check after writing the task list.
+# This hook performs only lightweight checks available from official input fields.
 
 set -euo pipefail
 
-# Read task JSON from stdin
-TASK_JSON=$(cat)
-
-# Require python3 for JSON parsing
 if ! command -v python3 &>/dev/null; then
-  exit 0  # Can't validate without python3 — allow through
+  exit 0
 fi
 
-# Validate required fields
+HOOK_JSON=$(cat)
+
 set +e
-VALIDATION=$(TASK_JSON="$TASK_JSON" python3 - 2>&1 <<'PYEOF'
+VALIDATION=$(HOOK_JSON="$HOOK_JSON" python3 - 2>&1 <<'PYEOF'
 import json, os, sys
 
-data = json.loads(os.environ.get("TASK_JSON", "{}"))
-
-required_fields = ["id", "title", "description", "type", "assignee", "status", "depends_on", "file_domain", "branch", "output_path"]
-valid_types = {"design", "implement", "fix", "test", "review", "deploy", "docs", "decision-required"}
-valid_statuses = {"pending", "in_progress", "blocked", "completed"}
+data = json.loads(os.environ.get("HOOK_JSON", "{}"))
 
 errors = []
-for field in required_fields:
-    value = data.get(field)
-    if value is None or (isinstance(value, str) and not value.strip()):
-        errors.append(f"Missing required field: '{field}'")
 
-task_type = data.get("type", "")
-if task_type and task_type not in valid_types:
-    errors.append(f"Invalid type '{task_type}'. Must be one of: {', '.join(sorted(valid_types))}")
+task_subject = data.get("task_subject", "")
+if not isinstance(task_subject, str) or not task_subject.strip():
+    errors.append("'task_subject' is empty — every task must have a non-empty subject/title.")
 
-status = data.get("status", "")
-if status and status not in valid_statuses:
-    errors.append(f"Invalid status '{status}'. Must be one of: {', '.join(sorted(valid_statuses))}")
+task_id = data.get("task_id", "")
+if not isinstance(task_id, str) or not task_id.strip():
+    errors.append("'task_id' is missing — this may indicate a hook integration issue.")
 
-if not isinstance(data.get("depends_on"), list):
-    errors.append("'depends_on' must be a JSON array")
-
-file_domain = data.get("file_domain")
-if not isinstance(file_domain, list) or not all(isinstance(item, str) and item.strip() for item in file_domain):
-    errors.append("'file_domain' must be a non-empty JSON array of path strings")
+teammate_name = data.get("teammate_name", "")
+if not isinstance(teammate_name, str) or not teammate_name.strip():
+    errors.append("'teammate_name' is empty — every task must have an assigned teammate.")
 
 if errors:
     for e in errors:
@@ -56,13 +52,13 @@ PYEOF
 )
 EXIT_CODE=$?
 set -e
+
 if [[ $EXIT_CODE -ne 0 ]]; then
-  echo "Task validation failed:"
+  echo "Task creation validation failed:"
   echo "$VALIDATION"
   echo ""
-  echo "Required: id, title, description, type, assignee, status, depends_on, file_domain, branch, output_path"
-  echo "Valid types: design, implement, fix, test, review, deploy, docs, decision-required"
-  echo "Valid statuses: pending, in_progress, blocked, completed"
+  echo "Note: Complex schema fields (type, file_domain, flyway_version, etc.) are"
+  echo "validated by pm-agent's self-check after writing TASK-LIST.md, not in this hook."
   exit 2
 fi
 

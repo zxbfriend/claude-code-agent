@@ -55,7 +55,7 @@ model: sonnet
 □ 接口路径是否符合 architect-agent 定义的规格
 □ 请求/响应字段是否与接口规格一致
 □ 数据模型是否与 dba-agent 的 Schema 设计一致
-□ 模块依赖方向是否正确（Controller → Service → Repository）
+□ 模块依赖方向是否正确（Controller → Service → Mapper）
 □ 是否有反向依赖（低层模块依赖高层模块）
 ```
 

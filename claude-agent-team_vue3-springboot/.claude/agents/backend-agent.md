@@ -27,11 +27,11 @@ model: sonnet
 
 | 约束项 | 规范 |
 |--------|------|
-| JDK 版本 | Java 17+ |
-| 框架 | Spring Boot 3.x |
-| ORM | MyBatis-Plus 3.x |
-| 代码规范 | Alibaba Java 开发手册（嵩山版）|
-| 测试框架 | JUnit 5 + Mockito |
+| JDK 版本 | Java 17 |
+| 框架 | Spring Boot 4.0.5 |
+| ORM | MyBatis (XML 映射) |
+| 代码规范 | Alibaba Java 开发手册 + RuoYi 风格 |
+| 测试框架 | JUnit 5 |
 | 日志框架 | SLF4J + Logback |
 
 ---
@@ -42,21 +42,28 @@ model: sonnet
 
 ```java
 @RestController
-@RequestMapping("/api/v1/{resource}")
-@RequiredArgsConstructor
-@Validated
-public class XxxController {
+@RequestMapping("/system/xxx")
+public class XxxController extends BaseController {
 
-    private final XxxService xxxService;
+    @Autowired
+    private IXxxService xxxService;
 
     /**
-     * {接口描述}
-     * @param dto 请求参数
-     * @return 统一响应
+     * 查询列表
      */
-    @PostMapping
-    public Result<XxxVO> create(@RequestBody @Valid XxxDTO dto) {
-        return Result.success(xxxService.create(dto));
+    @GetMapping("/list")
+    public TableDataInfo list(Xxx xxx) {
+        startPage();
+        List<Xxx> list = xxxService.selectXxxList(xxx);
+        return getDataTable(list);
+    }
+
+    /**
+     * 新增
+     */
+    @PostMapping("/add")
+    public AjaxResult add(@RequestBody Xxx xxx) {
+        return toAjax(xxxService.insertXxx(xxx));
     }
 }
 ```
@@ -64,24 +71,20 @@ public class XxxController {
 ### Service 层
 
 ```java
-public interface XxxService {
-    XxxVO create(XxxDTO dto);
+public interface IXxxService {
+    List<Xxx> selectXxxList(Xxx xxx);
+    int insertXxx(Xxx xxx);
 }
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
-public class XxxServiceImpl implements XxxService {
+public class XxxServiceImpl implements IXxxService {
 
-    private final XxxMapper xxxMapper;
+    @Autowired
+    private XxxMapper xxxMapper;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public XxxVO create(XxxDTO dto) {
-        // 1. 参数校验（业务层校验）
-        // 2. 业务逻辑
-        // 3. 数据持久化
-        // 4. 返回结果
+    public List<Xxx> selectXxxList(Xxx xxx) {
+        return xxxMapper.selectXxxList(xxx);
     }
 }
 ```
