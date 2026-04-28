@@ -82,6 +82,27 @@ your-project/
 
 ---
 
+## Prerequisites
+
+| Requirement | Details |
+|---|---|
+| **Claude Code** | Latest version with Agent Teams support (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set automatically by `.claude/settings.json`) |
+| **Bash** | The three hook scripts require Bash to run. See platform notes below. |
+| **Python 3** | Required by all hooks for JSON parsing. Verify: `python3 --version` |
+| **Git** | Required by `TaskCompleted` for branch protection. Verify: `git --version` |
+
+### Platform Notes
+
+**macOS / Linux:** Bash and Python 3 are available by default. No extra setup needed.
+
+**Windows:** The hook commands use `bash`. Native `cmd.exe` or PowerShell will not work. Choose one of:
+
+- **WSL (recommended):** Run Claude Code inside a WSL terminal. All hooks work without modification.
+- **Git Bash:** Install [Git for Windows](https://git-scm.com/download/win) and run Claude Code from the Git Bash terminal. Verify `bash --version` and `python3 --version` are both accessible.
+- **Skip hooks:** If you cannot use Bash, remove the `hooks` block from `.claude/settings.json`. The agent team will still function; you lose the idle-prevention and branch-protection safety nets.
+
+---
+
 ## Quick Start
 
 ### 1. Copy files to your project
@@ -209,7 +230,7 @@ This prevents the team from stalling on plan approval for routine features.
 | Hook | File | Purpose |
 |---|---|---|
 | TaskCreated | `.claude/hooks/task-created.sh` | Validates `task_subject` (non-empty) and `task_id` (present); `teammate_name` intentionally not enforced (unassigned tasks are valid) |
-| TaskCompleted | `.claude/hooks/task-completed.sh` | Identifies coding/documentation tasks by teammate name (backend/frontend/dba/devops/doc-agent) or subject keywords; blocks completion on main/master |
+| TaskCompleted | `.claude/hooks/task-completed.sh` | Identifies coding/documentation tasks by teammate name (backend-agent/frontend-agent/dba-agent/devops-agent/doc-agent) or subject keywords; blocks completion on main/master |
 | TeammateIdle | `.claude/hooks/teammate-idle.sh` | Reads stdin JSON for teammate_name; counts only claimable tasks (assignee match + all deps completed + not blocked) |
 
 ---
