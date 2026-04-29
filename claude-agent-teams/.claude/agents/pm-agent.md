@@ -68,6 +68,22 @@ grep -E "\{your-" CLAUDE.md && {
 
 If placeholders remain, report the issue to the user and do not proceed.
 
+Next, verify a git repository exists:
+
+```bash
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+  echo "WARNING: No git repository found in the current directory."
+  echo "A repository is required before any coding task can start."
+  echo "Choose one of the following — confirm with the user before proceeding:"
+  echo "  Option A (existing remote repo): provide REPO_URL → pm-agent runs git clone"
+  echo "  Option B (brand-new local project): pm-agent runs git init"
+fi
+```
+
+If no repository is found, **stop and ask the user** which option applies. Do not auto-select.
+Once confirmed, create an `init` task (see task types in Step 6), execute the repository setup,
+then proceed with the normal workflow.
+
 ---
 
 ## Step 2 — Classify the Task
@@ -100,6 +116,8 @@ IMPACT MATRIX:
 - Database?    YES if: new table / column / index / data migration
 - DevOps?      YES if: new env var / container change / K8s manifest / CI pipeline
 - Security?    YES if: auth/authz / payment / PII / external API / file upload
+- Git init?    YES if: no .git directory found in the workspace (new project)
+- Git clone?   YES if: no local code but REPO_URL is provided by the user
 ```
 
 Rules:
@@ -157,6 +175,7 @@ Generate `TASK-{YYYYMMDD}-{NNN}` items. For each task define:
 
 | Type | Use when |
 |---|---|
+| `init` | pm-agent is initializing a git repository (`git init`) or cloning an existing one (`git clone`) for a brand-new project |
 | `design` | architect-agent is producing a tech spec or decision gate document |
 | `implement` | any agent is writing new feature code |
 | `fix` | any agent is fixing a reported bug |
@@ -207,6 +226,31 @@ Mark dba-agent as provisional when DB impact is possible. After architect-agent 
 ## Step 8 — Start Execution Immediately
 
 After team creation, immediately activate the first runnable task.
+
+**`init` task execution (new projects only):**
+
+When the first task is `type: init`, pm-agent executes the repository setup directly
+before activating any other task. Use the appropriate script based on user confirmation:
+
+```bash
+# Option A — Clone an existing remote repository
+git clone {REPO_URL} .
+# Verify CLAUDE.md and .claude/ are present after cloning;
+# if not, copy them from the agent-teams template directory.
+
+# Option B — Initialize a brand-new local repository
+git init
+git add CLAUDE.md .claude/
+git commit -m "chore: initialize project with agent team config
+
+Agent: pm-agent"
+# Inform the user to create a remote repo and run:
+#   git remote add origin {REPO_URL}
+# This step requires human action — do not attempt it automatically.
+```
+
+After the `init` task completes, mark it `completed` and activate the next runnable task
+(typically a `design` task for architect-agent) following the normal concurrency rules.
 
 **Concurrency limit enforcement:** Before activating a new task, count how many tasks are currently `in_progress`. If the count equals `MAX_CONCURRENT_AGENTS` (4), keep additional runnable tasks as `pending` and start them only as active tasks complete.
 

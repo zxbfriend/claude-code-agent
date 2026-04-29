@@ -49,6 +49,25 @@ pm-agent will:
 4. Create the shared task list
 5. Spawn the appropriate teammates
 
+### New Project Setup (no git repository yet)
+
+If the project directory has no `.git` folder, pm-agent will detect this in Step 1 and ask
+you to confirm one of the following before proceeding:
+
+```
+# Option A — you have already created a remote repository
+This is a new project. Clone it from https://github.com/yourorg/yourproject,
+then implement user authentication.
+
+# Option B — brand-new project, nothing exists yet
+This is a brand-new project with no git repository.
+Initialize it locally, then implement user authentication.
+```
+
+pm-agent will create an `init` task first, set up the repository, and then proceed with the
+normal workflow. For Option B, you will be prompted to create a remote repository and add
+the remote manually — pm-agent does not push to remotes automatically.
+
 ---
 
 ## 3. Agent Roles (Quick Reference)
@@ -131,7 +150,15 @@ Every coding task (implement / fix / refactor) MUST:
    # refactor/TASK-20260426-003
    ```
 
-2. Commit all changes when done (do NOT push):
+2. Sync the branch before starting work:
+   ```bash
+   git fetch origin
+   git pull origin "${BRANCH}"
+   # If a merge conflict occurs → send BLOCKED to pm-agent immediately.
+   # Do NOT attempt to resolve conflicts manually.
+   ```
+
+3. Commit all changes when done (do NOT push):
    ```bash
    git add -A
    git commit -m "{type}({scope}): {summary}
@@ -140,10 +167,23 @@ Every coding task (implement / fix / refactor) MUST:
    Agent: {agent-name}"
    ```
 
-3. Report the branch name in the delivery report.
+4. Report the branch name in the delivery report.
 
 Agents working on the same feature MUST work on the same branch (lead coordinates this).
 Never commit directly to `main` or `master`.
+
+### New Project Repository Setup
+
+When no `.git` directory exists, pm-agent handles repository initialization as an `init` task
+**before** any other task starts. Two scenarios:
+
+| Scenario | Action |
+|---|---|
+| Remote repo exists (REPO_URL provided) | `git clone {REPO_URL} .` |
+| Brand-new local project | `git init` → initial commit of `CLAUDE.md` and `.claude/` → prompt user to add remote |
+
+After the `init` task completes, all subsequent tasks follow the normal branch convention above.
+Pushing to remotes always requires human action — agents never run `git push`.
 
 ---
 
@@ -195,7 +235,7 @@ Tasks on the shared list use this structure:
 ```json
 {
   "id": "TASK-{YYYYMMDD}-{NNN}",
-  "type": "design|implement|fix|refactor|test|review|deploy|docs|decision-required",
+  "type": "init|design|implement|fix|refactor|test|review|deploy|docs|decision-required",
   "title": "Short task title",
   "description": "What needs to be done",
   "assignee": "agent-name or unassigned",

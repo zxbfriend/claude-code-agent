@@ -38,9 +38,18 @@ ls "${TECH_SPEC_PATH}"
 # 3. Create or join feature branch
 git checkout "${BRANCH}" 2>/dev/null || git checkout -b "${BRANCH}"
 
-# 4. Confirm file domain — read FILE_DOMAIN from pm-agent start instruction
+# 4. Sync the branch with the latest remote state
+git fetch origin
+git pull origin "${BRANCH}" 2>&1 | tee /tmp/git_pull_result.txt
+if grep -qiE "conflict|CONFLICT" /tmp/git_pull_result.txt; then
+  echo "MERGE CONFLICT detected — aborting and sending BLOCKED to pm-agent"
+  git merge --abort 2>/dev/null || true
+  exit 1
+fi
 
-# 5. Check shared file mods
+# 5. Confirm file domain — read FILE_DOMAIN from pm-agent start instruction
+
+# 6. Check shared file mods
 # Modify shared files (pom.xml, application.yml, etc.) only when this task is the assigned owner
 ```
 
@@ -50,6 +59,18 @@ BLOCKED: {TASK_ID}
 Assignee: backend-agent
 Reason: Tech spec not found at {TECH_SPEC_PATH}
 Needed From: architect-agent
+Blocking Since: {timestamp}
+```
+
+If a merge conflict is detected during git pull, send to pm-agent:
+```text
+BLOCKED: {TASK_ID}
+Assignee: backend-agent
+Reason: Merge conflict detected on branch {BRANCH} during git pull.
+        Conflicting files: {list from git status}
+        Merge has been aborted. Human intervention required to resolve conflicts
+        or pm-agent should re-sequence the task dependencies.
+Needed From: pm-agent
 Blocking Since: {timestamp}
 ```
 

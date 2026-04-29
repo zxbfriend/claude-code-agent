@@ -80,7 +80,11 @@ if [[ $IS_CODING_TASK -eq 1 ]]; then
 
   if [[ -z "$CURRENT_BRANCH" ]]; then
     echo "ERROR: Could not determine current git branch." >&2
-    echo "Ensure the workspace is inside a git repository." >&2
+    echo "Possible causes:" >&2
+    echo "  1. No git repository found in the current directory." >&2
+    echo "     → New project: notify pm-agent to run 'git init' or 'git clone' before starting coding tasks." >&2
+    echo "  2. The workspace is in an unexpected git state." >&2
+    echo "Notify pm-agent with a BLOCKED message and wait for resolution." >&2
     exit 2
   fi
 
